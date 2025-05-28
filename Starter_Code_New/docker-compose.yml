@@ -1,0 +1,140 @@
+services:
+  peer5000:
+    build: .
+    container_name: peer5000
+    hostname: peer5000
+    ports:
+      - "6000:5000"    # Map peer TCP: 6000 -> 5000
+      - "8000:7000"    # Map dashboard: 8000 -> 7000
+    command: ["python", "node.py", "--id", "5000", "--config", "config.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.10
+
+  peer5001:
+    build: .
+    container_name: peer5001
+    hostname: peer5001
+    ports:
+      - "6001:5001"
+      - "8001:7001"
+    command: ["python", "node.py", "--id", "5001", "--config", "config.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.11
+
+  peer5002:
+    build: .
+    container_name: peer5002
+    hostname: peer5002
+    ports:
+      - "6002:5002"
+      - "8002:7002"
+    command: ["python", "node.py", "--id", "5002", "--config", "config.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.12
+
+  peer5003:
+    build: .
+    container_name: peer5003
+    hostname: peer5003
+    ports:
+      - "6003:5003"
+      - "8003:7003"
+    command: ["python", "node.py", "--id", "5003", "--config", "config.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.13
+
+  peer5004:
+    build: .
+    container_name: peer5004
+    hostname: peer5004
+    ports:
+      - "6004:5004"    
+      - "8004:7004"    
+    command: ["python", "node.py", "--id", "5004", "--config", "config.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.14
+
+  peer5005:
+    build: .
+    container_name: peer5005
+    hostname: peer5005
+    ports:
+      - "6005:5005"    
+      - "8005:7005"    
+    command: ["python", "node.py", "--id", "5005", "--config", "config.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.15
+
+  peer5006:
+    build: .
+    container_name: peer5006
+    hostname: peer5006
+    ports:
+      - "6006:5006"    
+      - "8006:7006"    
+    command: ["python", "node.py", "--id", "5006", "--config", "config.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.16
+
+  peer5007:
+    build: .
+    container_name: peer5007
+    hostname: peer5007
+    ports:
+      - "6007:5007"    
+      - "8007:7007"    
+    command: ["python", "node.py", "--id", "5007", "--config", "config.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.17
+
+  peer5008:
+    build: .
+    container_name: peer5008
+    hostname: peer5008
+    ports:
+      - "6008:5008"    
+      - "8008:7008"    
+    command: ["python", "node.py", "--id", "5008", "--config", "config.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.18
+
+  peer5009:
+    build: .
+    container_name: peer5009
+    hostname: peer5009
+    ports:
+      - "6009:5009"    
+      - "8009:7009"    
+    command: ["python", "node.py", "--id", "5009", "--config", "config.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.19
+
+
+  peer5010:
+    build: .
+    container_name: peer5010
+    hostname: peer5010
+    ports:
+      - "6010:5010"    
+      - "8010:7010"    
+    command: ["python", "node.py", "--id", "5010", "--config", "config.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.20
+
+networks:
+  p2pnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
