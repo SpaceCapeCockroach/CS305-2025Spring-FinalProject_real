@@ -23,7 +23,8 @@ def request_block_sync(self_id):
     # pass
     get_block_headers_msg = {
         "type": "GET_BLOCK_HEADERS",
-        "sender": self_id
+        "sender": self_id,
+        "message_id": generate_message_id()
     }
 
     # enqueue_message(target_id, ip, port, message)
@@ -86,11 +87,12 @@ def create_dummy_block(peer_id, MALICIOUS_MODE):
         
     block = {
         "type": "BLOCK",
-        "creator": peer_id,
+        "sender": peer_id,
         "timestamp": time.time(),
         "block_id": "",  # Will be computed later
         "prev_id": prev_hash,
-        "tx_list": transactions
+        "tx_list": transactions,
+        "message_id": generate_message_id()
     }
     
     # 恶意节点篡改前哈希

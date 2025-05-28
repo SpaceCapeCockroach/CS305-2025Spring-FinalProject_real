@@ -2,6 +2,7 @@ import threading
 import time
 import json
 from collections import defaultdict
+from utils import generate_message_id
 
 
 peer_status = {} # {peer_id: 'ALIVE', 'UNREACHABLE' or 'UNKNOWN'}
@@ -24,8 +25,8 @@ def start_ping_loop(self_id, peer_table):
             ping_msg = {
                 "type": "PING",
                 "sender": self_id,
-                "timestamp": time.time()
-                # "sequence": generate_message_id()  # 假设有消息ID生成函数
+                "timestamp": time.time(),
+                "message_id": generate_message_id()
             }
             
             # 2. 发送给所有已知节点（排除黑名单）
@@ -48,7 +49,8 @@ def create_pong(sender, recv_ts):
     return {
         "type": "PONG",
         "sender": sender,
-        "timestamp": recv_ts
+        "timestamp": recv_ts,
+        "message_id": generate_message_id()
     }
 
 def handle_pong(msg):

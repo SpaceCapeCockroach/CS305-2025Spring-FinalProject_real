@@ -5,6 +5,7 @@ import random
 import threading
 from peer_discovery import known_peers
 from outbox import gossip_message
+from utils import generate_message_id
 
 class TransactionMessage:
     def __init__(self, sender, receiver, amount, timestamp=None):
@@ -14,11 +15,12 @@ class TransactionMessage:
         self.amount = amount
         self.timestamp = timestamp if timestamp else time.time()
         self.id = self.compute_hash()
+        self.message_id = generate_message_id()
 
     def compute_hash(self):
         tx_data = {
             "type": self.type,
-            "from": self.from_peer,
+            "sender": self.from_peer,
             "to": self.to_peer,
             "amount": self.amount,
             "timestamp": self.timestamp
@@ -29,16 +31,17 @@ class TransactionMessage:
         return {
             "type": self.type,
             "id": self.id,
-            "from": self.from_peer,
+            "sender": self.from_peer,
             "to": self.to_peer,
             "amount": self.amount,
-            "timestamp": self.timestamp
+            "timestamp": self.timestamp,
+            "message_id": self.message_id
         }
 
     @staticmethod
     def from_dict(data):
         return TransactionMessage(
-            sender=data["from"],
+            sender=data["sender"],
             receiver=data["to"],
             amount=data["amount"],
             timestamp=data["timestamp"]

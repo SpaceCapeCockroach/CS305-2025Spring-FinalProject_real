@@ -5,6 +5,7 @@ import json
 import random
 from collections import defaultdict, deque
 from threading import Lock
+from utils import generate_message_id
 
 # === Per-peer Rate Limiting ===
 RATE_LIMIT = 10  # max messages
@@ -223,7 +224,8 @@ def relay_or_direct_send(self_id, dst_id, message):
                 "type": "RELAY",
                 "sender": self_id,
                 "target": dst_id,
-                "payload": message
+                "payload": message,
+                "message_id": generate_message_id()
             }
             return send_message(relay_peer[1], relay_peer[2], json.dumps(relay_msg))
         else:
@@ -274,13 +276,13 @@ def apply_network_conditions(send_func):
         # 速率限制检查
         if not rate_limiter.allow():
             msg_type = json.loads(message).get("type", "OTHER")
-            drop_stats[msg_type] += 1
+            drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
             return False
 
         # 随机丢包
         if random.random() < DROP_PROB:
             msg_type = json.loads(message).get("type", "OTHER")
-            drop_stats[msg_type] += 1
+            drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
             return False
 
         # 添加延迟
@@ -307,8 +309,8 @@ def send_message(ip, port, message):
             s.settimeout(5)  # 设置超时时间（秒）
             s.connect((ip, port))
             
-            # 将消息序列化并发送
-            serialized_msg = json.dumps(message).encode('utf-8')
+            # 将消息序列化并发送（不用序列化！！！）
+            serialized_msg = message.encode('utf-8')
             s.sendall(serialized_msg)
             
             # 可选：等待ACK确认（根据协议设计）

@@ -36,6 +36,6 @@ def broadcast_inventory(self_id):
     inv_msg = create_inv(self_id, local_block_ids)
     
     # 向所有已知节点发送
-    gossip_message(json.dumps(inv_msg))
+    gossip_message(self_id,json.dumps(inv_msg))
 
 
