@@ -16,7 +16,7 @@ def start_socket_server(self_id, self_ip, port):
         # TODO: When receiving messages, pass the messages to the function `dispatch_message` in `message_handler.py`.
 
         # pass
-        server_socket = socket(AF_INET, SOCK_STREAM)
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = (self_ip, port)
         server_socket.bind(server_address)
         server_socket.listen(5)  # 允许最大等待连接数
@@ -33,19 +33,23 @@ def start_socket_server(self_id, self_ip, port):
             ).start()
 
     def handle_client(client_socket, self_id, self_ip):
-        try:
+        # try:
             while True:  # ← 新增接收循环
                 data = client_socket.recv(RECV_BUFFER)
                 if not data:  # 客户端正常关闭连接
                     print("Connection closed by client")
                     break
+                print(f"raw_msg:{data}\n")
+                # try:
                 dispatch_message(data, self_id, self_ip)
-        except ConnectionResetError:
-            print("Client forcibly closed connection")
-        except Exception as e:
-            print(f"Error handling client: {e}")
-        finally:
-            client_socket.close()
+                # except Exception as e:
+                #     print(f"Error handling client: {e}")
+        # except ConnectionResetError:
+        #     print("Client forcibly closed connection")
+        # except Exception as e:
+        #     print(f"Error handling client: {e}")
+        # finally:
+        #     client_socket.close()
 
     # ✅ Run listener in background
     threading.Thread(target=listen_loop, daemon=True).start()

@@ -11,7 +11,7 @@ from block_handler import create_getblock
 from peer_manager import  update_peer_heartbeat, record_offense, create_pong, handle_pong
 from transaction import add_transaction
 from outbox import enqueue_message, gossip_message
-
+from utils import generate_message_id
 from block_handler import compute_block_hash
 
 # === Global State ===
@@ -65,7 +65,13 @@ def dispatch_message(msg_raw, self_id, self_ip):
     except json.JSONDecodeError:
         print(f"[{self_id}] 无效的JSON消息")
         return
-    msg_type = msg.get["type"]
+    print(f"raw_msg:{msg_raw}\n")
+    print(f"msg:{msg}\n")
+
+    if not isinstance(msg, dict):
+        print(f"[{self_id}] 消息格式不是字典！！！！！")
+        return
+    msg_type = msg["type"]
 
     # TODO: Read the message.
 
@@ -76,7 +82,11 @@ def dispatch_message(msg_raw, self_id, self_ip):
     # TODO: Check if the sender exists in the `blacklist` of `peer_manager.py`. If yes, drop the message.
 
     sender_id = msg["sender"]
-    msg_id = msg["message_id"]
+    try:
+        msg_id = msg["message_id"]
+    except Exception as e:
+        print(f"message_id Exception: {e}")
+        print("没有id的message")
     msg_type = msg["type"]
 
 
@@ -165,7 +175,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
             record_offense(sender_id)
             return
             
-        if add_transaction(msg):
+        if add_transaction(tx):
             gossip_message(self_id, msg_raw)
 
     elif msg_type == "PING":
@@ -179,7 +189,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
         # pass
         update_peer_heartbeat(sender_id)
         pong_msg = create_pong(self_id, msg["timestamp"])
-        enqueue_message(sender_id, known_peers[target_id][0],known_peers[target_id][1], json.dump(pong_msg))  # 假设已知节点信息
+        enqueue_message(sender_id, known_peers[sender_id][0],known_peers[sender_id][1], json.dumps(pong_msg))  # 假设已知节点信息
 
     elif msg_type == "PONG":
         
@@ -208,7 +218,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
         
         if missing:
             getblock_msg = create_getblock(self_id, list(missing))
-            enqueue_message(sender_id, known_peers[target_id][0],known_peers[target_id][1], json.dump(getblock_msg))
+            enqueue_message(sender_id, known_peers[sender_id][0],known_peers[sender_id][1], json.dumps(getblock_msg))
 
     elif msg_type == "GETBLOCK":
         
@@ -244,11 +254,11 @@ def dispatch_message(msg_raw, self_id, self_ip):
                         break
                 # 如果区块不在本地，尝试从其他节点获取
                     new_getblock = create_getblock(self_id, [bid])
-                    gossip_message(self_id, json.dump(new_getblock))
+                    gossip_message(self_id, json.dumps(new_getblock))
         
         # 发送找到的区块
         for block in found:
-            enqueue_message(sender_id, known_peers[target_id][0],known_peers[target_id][1], json.dumps(block))
+            enqueue_message(sender_id, known_peers[sender_id][0],known_peers[sender_id][1], json.dumps(block))
 
     elif msg_type == "GET_BLOCK_HEADERS":
         
@@ -265,9 +275,10 @@ def dispatch_message(msg_raw, self_id, self_ip):
         response = {
             "type": "BLOCK_HEADERS",
             "sender": self_id,
-            "headers": headers
+            "headers": headers,
+            "message_id": generate_message_id()
         }
-        enqueue_message(sender_id, known_peers[target_id][0],known_peers[target_id][1], json.dumps(response))
+        enqueue_message(sender_id, known_peers[sender_id][0],known_peers[sender_id][1], json.dumps(response))
 
     elif msg_type == "BLOCK_HEADERS":
         
@@ -310,7 +321,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
             if missing_block_ids:
                 print(f"[{self_id}] 全节点缺失 {len(missing_block_ids)} 个完整块，发起请求")
                 getblock_msg = create_getblock(self_id, missing_block_ids)
-                enqueue_message(sender_id, known_peers[target_id][0],known_peers[target_id][1], json.dumps(getblock_msg))
+                enqueue_message(sender_id, known_peers[sender_id][0],known_peers[sender_id][1], json.dumps(getblock_msg))
             else:
                 print(f"[{self_id}] 全节点已拥有全部区块，无需处理")
 
