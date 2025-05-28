@@ -310,7 +310,14 @@ def send_message(ip, port, message):
             s.connect((ip, port))
             
             # 将消息序列化并发送（不用序列化！！！）
-            serialized_msg = message.encode('utf-8')
+
+            serialized_msg = message
+            if not isinstance(message, str):
+                print(f"Message bytes: {message} , no need to encode")
+            else:
+                serialized_msg = message.encode('utf-8')
+
+            # serialized_msg = message.encode('utf-8')
             s.sendall(serialized_msg)
             
             # 可选：等待ACK确认（根据协议设计）

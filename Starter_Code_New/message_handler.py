@@ -99,6 +99,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
     with seen_lock:
         if msg_id in seen_message_ids:
             if time.time() - seen_message_ids[msg_id] < SEEN_EXPIRY_SECONDS:
+                global message_redundancy
                 message_redundancy += 1
                 print(f"[{self_id}] 重复消息 {msg_id[:8]}... 已丢弃")
                 return
