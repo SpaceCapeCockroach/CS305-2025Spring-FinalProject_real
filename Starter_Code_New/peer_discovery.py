@@ -37,6 +37,7 @@ def start_peer_discovery(self_id, self_info):
             enqueue_message(
                 peer_id, peer_ip ,peer_port,json.dumps(message),
             )
+            print(f"[debug]Sent hello message to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
         
     threading.Thread(target=loop, daemon=True).start()
 

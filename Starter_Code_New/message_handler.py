@@ -65,7 +65,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
     except json.JSONDecodeError:
         print(f"[{self_id}] 无效的JSON消息")
         return
-    msg_type = msg.get["type"]
+    msg_type = msg.get("type")
 
     # TODO: Read the message.
 

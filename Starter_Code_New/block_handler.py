@@ -61,7 +61,7 @@ def block_generation(self_id, MALICIOUS_MODE, interval=20):
             # 广播新区块
             if 'block_id' in block:
                 inv_msg = create_inv(self_id, [block['block_id']])
-                gossip_message(inv_msg)
+                gossip_message(self_id,json.dumps(inv_msg))
                 print(f"生成新区块 #{len(received_blocks)+1} | Hash: {block['block_id'][:16]}...")
                 
             time.sleep(interval)

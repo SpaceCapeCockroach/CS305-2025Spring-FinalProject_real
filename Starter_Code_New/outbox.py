@@ -119,7 +119,7 @@ def is_rate_limited(peer_id):
     window_start = now - TIME_WINDOW
 
     # 清理过期时间戳
-    with Lock:
+    with lock:
         timestamps = [ts for ts in peer_send_timestamps[peer_id] if ts > window_start]
         peer_send_timestamps[peer_id] = timestamps
 
@@ -248,7 +248,7 @@ def get_relay_peer(self_id, dst_id):
     min_rtt = float('inf')
 
     for peer in candidates:
-        with Lock:
+        with lock:
             current_rtt = rtt_tracker.get((self_id, peer), 1000)  # 默认1秒
         if current_rtt < min_rtt:
             min_rtt = current_rtt
@@ -358,7 +358,7 @@ def gossip_message(self_id, message, fanout=3):
     candidates = []
     for peer_id in known_peers:
         # 如果是交易，跳过轻节点
-        if json.loads(message).get("type") == "TX" and peer_config.get("is_light", False):
+        if json.loads(message).get("type") == "TX" and peer_config.get("light", False):
             continue
         candidates.append(peer_id)
 
