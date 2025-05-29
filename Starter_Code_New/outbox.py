@@ -105,6 +105,7 @@ def enqueue_message(target_id, ip, port, message):
     with lock:
         if sum(len(q) for q in queues[target_id].values()) < QUEUE_LIMIT:
             queues[target_id][priority].append((message, ip, port))
+            print(f'[debug]Enqueued message to {target_id} with priority {priority} - Type: {msg_type}')
         else:
             # 统计丢弃情况
             drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
