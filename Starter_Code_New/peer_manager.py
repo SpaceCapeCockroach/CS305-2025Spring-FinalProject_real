@@ -110,8 +110,10 @@ def start_peer_monitor():
 def update_peer_heartbeat(peer_id):
     # TODO: Update the `last_ping_time` of a peer when receiving its `ping` or `pong` message.
     # pass
-    last_ping_time[peer_id] = time.time()
-    peer_status[peer_id] = 'ALIVE'
+    with Lock:
+        last_ping_time[peer_id] = time.time()
+        peer_status[peer_id] = 'ALIVE'
+        print(f'更新 {peer_id} 的心跳状态为 ALIVE，时间戳: {last_ping_time[peer_id]}')
 
 
 # === Blacklist Logic ===

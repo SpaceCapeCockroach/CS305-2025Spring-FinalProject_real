@@ -243,7 +243,7 @@ The operation logic of the project is given in the `Main` function of `node.py`.
 4. `start_peer_monitor`
 
 * Check the latest time to receive `ping` or `pong` message from each peer in `last_ping_time`.
-* If the latest time is earlier than the limit, mark the peer's status in `peer_status` as `UNREACHABLE` or otherwise `ALIVE`.
+* If the latest time is earlier than the limit, mark the peer's status in `us` as `UNREACHABLE` or otherwise `ALIVE`.
 
 5. `update_peer_heartbeat`
 

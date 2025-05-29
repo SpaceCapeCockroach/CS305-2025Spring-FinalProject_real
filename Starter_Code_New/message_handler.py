@@ -63,10 +63,9 @@ def dispatch_message(msg_raw, self_id, self_ip):
     try:
         msg = json.loads(msg_raw)
     except json.JSONDecodeError:
-        print(f"[{self_id}] 无效的JSON消息")
+        print(f"[{self_id}] {msg_raw}无效的JSON消息")
         return
     print(f"raw_msg:{msg_raw}\n")
-    print(f"msg:{msg}\n")
 
     if not isinstance(msg, dict):
         print(f"[{self_id}] 消息格式不是字典！！！！！")

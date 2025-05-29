@@ -105,7 +105,7 @@ def enqueue_message(target_id, ip, port, message):
     with lock:
         if sum(len(q) for q in queues[target_id].values()) < QUEUE_LIMIT:
             queues[target_id][priority].append((message, ip, port))
-            print(f'[debug]Enqueued message to {target_id} with priority {priority} - Type: {msg_type}')
+            #print(f'[debug]Enqueued message to {target_id} with priority {priority} - Type: {msg_type}')
         else:
             # 统计丢弃情况
             drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
@@ -218,6 +218,7 @@ def relay_or_direct_send(self_id, dst_id, message):
 
     # pass
     # 检查目标是否NAT
+    print(f"[debug]Sending message to {dst_id} from {self_id} - Message: {message}")
     if peer_flags.get(dst_id, {}).get("nat", False):
         relay_peer = get_relay_peer(self_id, dst_id)
         if relay_peer:
@@ -228,7 +229,7 @@ def relay_or_direct_send(self_id, dst_id, message):
                 "payload": message,
                 "message_id": generate_message_id()
             }
-            return send_message(relay_peer[1], relay_peer[2], json.dumps(relay_msg))
+            return send_message(relay_peer[0], relay_peer[1], json.dumps(relay_msg))
         else:
             print(f"No suitable relay peer found for {dst_id}.")
             return False
@@ -252,7 +253,8 @@ def get_relay_peer(self_id, dst_id):
 
     for peer in candidates:
         with lock:
-            current_rtt = rtt_tracker.get((self_id, peer), 1000)  # 默认1秒
+            current_rtt = rtt_tracker.get(peer, 1000)  # 默认1秒
+            current_rtt = sum(rtt_tracker.get(peer, [1000])) / len(rtt_tracker.get(peer, [1000]))
         if current_rtt < min_rtt:
             min_rtt = current_rtt
             best_peer = peer

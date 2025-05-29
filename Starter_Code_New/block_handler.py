@@ -148,18 +148,22 @@ def handle_block(msg, self_id):
             print(f"无效区块哈希: 声明 {block['block_id'][:8]} 实际 {computed_hash[:8]}")
             record_offense(sender_id)
             return
-        print(f"进到锁里了吗，真的进得去吗？")
+        #print(f"进到锁里了吗，真的进得去吗？")
         with block_lock:
-            print(f'{threading.current_thread().name} 进入blocklock,有没有 {block["block_id"][:8]}啊啊啊')
+            #print(f'{threading.current_thread().name} 进入blocklock,有没有 {block["block_id"][:8]}啊啊啊')
             # 重复检查
             if any(b['block_id'] == block['block_id'] for b in received_blocks):
                 return
                 
             # 主链连接检查
-            if block['prev_id'] == received_blocks[-1]['block_id'] or block['prev_id'] == '0'*64:
+            if  block['prev_id'] == '0'*64 :
                 print(f"接收到新区块 | 前哈希: {block['prev_id'][:8]}...")
                 add_to_chain(block,self_id)
                 check_orphans(block['block_id'])
+            elif block['prev_id'] == received_blocks[-1]['block_id']:
+                 print(f"接收到新区块 | 前哈希: {block['prev_id'][:8]}...")
+                 add_to_chain(block,self_id)
+                 check_orphans(block['block_id'])
             else:
                 # 存入孤儿区块
                 orphan_blocks.setdefault(block['prev_id'], []).append(block)

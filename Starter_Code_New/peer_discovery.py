@@ -18,27 +18,29 @@ def start_peer_discovery(self_id, self_info):
         # TODO: Send a `hello` message to all known peers and put the messages into the outbox queue.
         # pass
         # 1. 构造hello消息
-        message = {
-            "type": "HELLO",
-            "sender": self_id,
-            "ip": self_info['ip'],
-            "port": self_info['port'],
-            "flags": {
-                "nat": peer_flags.get(self_id ,{}).get('nat', False),
-                "light": peer_flags.get(self_id ,{}).get('light', False)
-            },
-            "message_id": generate_message_id()
-        }
-            
-        # 2. 发送给所有已知节点
-        k_peers = known_peers.copy()  # 避免在迭代时修改字典
-        for peer_id in k_peers:
-            peer_ip, peer_port = known_peers[peer_id]
-            enqueue_message(
-                peer_id, peer_ip ,peer_port,json.dumps(message),
-            )
-            print(f"[debug]Sent hello message to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
-        
+        while True:
+            message = {
+                "type": "HELLO",
+                "sender": self_id,
+                "ip": self_info['ip'],
+                "port": self_info['port'],
+                "flags": {
+                    "nat": peer_flags.get(self_id ,{}).get('nat', False),
+                    "light": peer_flags.get(self_id ,{}).get('light', False)
+                },
+                "message_id": generate_message_id()
+            }
+
+            # 2. 发送给所有已知节点
+            k_peers = known_peers.copy()  # 避免在迭代时修改字典
+            for peer_id in k_peers:
+                if peer_id == self_id: continue  # 不发送给自己
+                peer_ip, peer_port = known_peers[peer_id]
+                enqueue_message(
+                    peer_id, peer_ip ,peer_port,json.dumps(message),
+                )
+                print(f"[debug]Sent hello message to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
+            time.sleep(20)
     threading.Thread(target=loop, daemon=True).start()
 
 def handle_hello_message(msg, self_id):
@@ -60,14 +62,19 @@ def handle_hello_message(msg, self_id):
         flags = data['flags']
         
         # 2. 处理新节点
-        if sender_id not in known_peers:
+       
+       
+        peer_flags[sender_id] = flags
+        if sender_id not in known_peers:    
+            new_peers.append(sender_id) 
             known_peers[sender_id] = (ip, port)
-            peer_flags[sender_id] = flags
-            new_peers.append(sender_id)
             print(f"New peer discovered: {sender_id}@{ip}:{port}")
             
         # 3. 更新可达性
-        reachable_by.setdefault(sender_id, set()).add(self_id)
+        if sender_id== self_id:
+            print(f"Received hello message from self: {self_id}")
+            return new_peers
+        reachable_by.setdefault(sender_id, set()).add(sender_id)
         
     except KeyError as e:
         print(f"Invalid hello message: missing {e}")

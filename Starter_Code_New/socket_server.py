@@ -19,7 +19,7 @@ def start_socket_server(self_id, self_ip, port):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = (self_ip, port)
         server_socket.bind(server_address)
-        server_socket.listen(5)  # 允许最大等待连接数
+        server_socket.listen(10)  # 允许最大等待连接数
         print(f"TCP server started on {self_ip}:{port}")
         while True: 
             # 接受新连接
@@ -41,7 +41,7 @@ def start_socket_server(self_id, self_ip, port):
                     break
                 print(f"raw_msg:{data}\n")
                 # try:
-                dispatch_message(data, self_id, self_ip)
+                dispatch_message(data.decode(), self_id, self_ip)
                 # except Exception as e:
                 #     print(f"Error handling client: {e}")
         # except ConnectionResetError:
