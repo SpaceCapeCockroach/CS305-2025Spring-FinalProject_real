@@ -48,7 +48,7 @@ def block_generation(self_id, MALICIOUS_MODE, interval=20):
     # TODO: Create an `INV` message for the new block using the function `create_inv` in `inv_message.py`.
 
     # TODO: Broadcast the `INV` message to known peers using the function `gossip` in `outbox.py`.
-        # pass
+
         # DIFFICULTY = 4  # 工作量证明难度（前导零数）
         
         while True:
@@ -155,14 +155,14 @@ def handle_block(msg, self_id):
                 return
                 
             # 主链连接检查
-            if block['prev_hash'] == (received_blocks[-1]['block_id'] if received_blocks else '0'*64):
-                print("接收到新区块 | 前哈希: {block['prev_id'][:8]}...")
+            if block['prev_id'] == received_blocks[-1]['block_id'] or block['prev_id'] == '0'*64:
+                print(f"接收到新区块 | 前哈希: {block['prev_id'][:8]}...")
                 add_to_chain(block,self_id)
                 check_orphans(block['block_id'])
             else:
                 # 存入孤儿区块
-                orphan_blocks.setdefault(block['prev_hash'], []).append(block)
-                print(f"孤儿区块 | 前哈希: {block['prev_hash'][:8]}...")
+                orphan_blocks.setdefault(block['prev_id'], []).append(block)
+                print(f"孤儿区块 | 前哈希: {block['prev_id'][:8]}...")
                 
     except (KeyError, json.JSONDecodeError) as e:
         print(f"区块解析失败: {e}")
