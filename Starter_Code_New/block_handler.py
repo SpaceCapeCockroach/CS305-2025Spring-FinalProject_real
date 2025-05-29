@@ -58,12 +58,21 @@ def block_generation(self_id, MALICIOUS_MODE, interval=20):
                 print("未生成候选区块，等待交易...")
                 time.sleep(interval)
                 continue
+            
+            with block_lock:
+                received_blocks.append(block)
+                header_store.append({
+                    'hash': block['block_id'],
+                    'timestamp': block['timestamp'],
+                    'tx_count': len(block['tx_list']),
+                    'prev_hash': block['prev_id']
+                })
 
             # 广播新区块
             if 'block_id' in block:
                 inv_msg = create_inv(self_id, [block['block_id']])
                 gossip_message(self_id,json.dumps(inv_msg))
-                print(f"生成新区块 #{len(received_blocks)+1} | Hash: {block['block_id'][:16]}...")
+                print(f"生成新区块 #{len(received_blocks)} | Hash: {block['block_id'][:16]}...")
                 
             time.sleep(interval)
     threading.Thread(target=mine, daemon=True).start()
@@ -131,7 +140,7 @@ def handle_block(msg, self_id):
         #     pass
 
         block = json.loads(msg)
-        sender_id = block.get('creator')
+        sender_id = block.get('sender')
             
         # 计算实际哈希
         computed_hash = compute_block_hash(block)
@@ -147,6 +156,7 @@ def handle_block(msg, self_id):
                 
             # 主链连接检查
             if block['prev_hash'] == (received_blocks[-1]['block_id'] if received_blocks else '0'*64):
+                print("接收到新区块 | 前哈希: {block['prev_id'][:8]}...")
                 add_to_chain(block,self_id)
                 check_orphans(block['block_id'])
             else:

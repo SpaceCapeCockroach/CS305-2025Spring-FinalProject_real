@@ -54,7 +54,7 @@ def handle_hello_message(msg, self_id):
     try:
         # 1. 解析消息
         data = json.loads(msg)
-        sender_id = str(data['sender'])  # 强制类型统一
+        sender_id = data['sender']  # 强制类型统一
         ip = data['ip']
         port = data['port']
         flags = data['flags']
