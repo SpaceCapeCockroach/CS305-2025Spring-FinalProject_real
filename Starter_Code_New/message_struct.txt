@@ -1,0 +1,61 @@
+#INV message
+
+return {
+        "type": "INV",
+        "sender": sender_id,
+        "block_ids": block_ids,
+        "message_id": generate_message_id()
+    }
+
+
+block = {
+        "type": "BLOCK",
+        "sender": peer_id,
+        "timestamp": time.time(),
+        "block_id": "",  # Will be computed later
+        "prev_id": prev_hash,
+        "tx_list": transactions,
+        "message_id": generate_message_id()
+    }
+
+relay_msg = {
+                "type": "RELAY",
+                "sender": self_id,
+                "target": dst_id,
+                "payload": message,
+                "message_id": generate_message_id()
+            }
+
+
+#block headers
+response = {
+            "type": "BLOCK_HEADERS",
+            "sender": self_id,
+            "headers": headers,
+            "message_id": generate_message_id()
+        }
+
+#hello
+
+message = {
+            "type": "HELLO",
+            "sender": self_id,
+            "ip": self_info['ip'],
+            "port": self_info['port'],
+            "flags": {
+                "nat": peer_flags.get(self_id ,{}).get('nat', False),
+                "light": peer_flags.get(self_id ,{}).get('light', False)
+            },
+            "message_id": generate_message_id()
+        }
+
+
+#tx_list
+ self.type = "TX"
+        self.from_peer = sender
+        self.to_peer = receiver
+        self.amount = amount
+        self.timestamp = timestamp if timestamp else time.time()
+        self.id = self.compute_hash()
+        self.message_id = generate_message_id()
+

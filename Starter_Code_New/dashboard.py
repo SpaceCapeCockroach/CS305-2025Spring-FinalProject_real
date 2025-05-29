@@ -7,6 +7,7 @@ from message_handler import get_redundancy_stats
 from peer_discovery import known_peers,peer_flags
 import json
 from block_handler import received_blocks
+from outbox import get_outbox_status
 
 app = Flask(__name__)
 blockchain_data_ref = None
@@ -98,4 +99,27 @@ def redundancy_stats():
     stats = get_redundancy_stats()
     return jsonify(stats)
 
+@app.route('/outbox')
+def outbox_status():
+    """ 展示待发送消息队列状态 """
+    try:
+        # 获取原始队列状态
+        raw_status = get_outbox_status()
+        
+        # 转换为更易读的格式
+        formatted_status = {}
+        for peer_id, priorities in raw_status.items():
+            formatted_status[peer_id] = {
+                "high_priority": priorities.get(1, 0),
+                "medium_priority": priorities.get(2, 0),
+                "low_priority": priorities.get(3, 0),
+                "total": sum(priorities.values())
+            }
+        
+        return jsonify({
+            "message": "Outbox queue status",
+            "data": formatted_status
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 

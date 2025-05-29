@@ -148,8 +148,9 @@ def handle_block(msg, self_id):
             print(f"无效区块哈希: 声明 {block['block_id'][:8]} 实际 {computed_hash[:8]}")
             record_offense(sender_id)
             return
-            
+        print(f"进到锁里了吗，真的进得去吗？")
         with block_lock:
+            print(f'{threading.current_thread().name} 进入blocklock,有没有 {block["block_id"][:8]}啊啊啊')
             # 重复检查
             if any(b['block_id'] == block['block_id'] for b in received_blocks):
                 return

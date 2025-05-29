@@ -44,7 +44,7 @@ def main():
     for peer_id, peer_info in config["peers"].items():
         known_peers[peer_id] = (peer_info["ip"], peer_info["port"])
         peer_config = config["peers"]
-
+    print(f"[{self_id}] 知道的peers初始化: {known_peers}", flush=True)
     if args.fanout:
         peer_config[self_id]["fanout"] = args.fanout
         print(f"[{self_id}] Overriding fanout to {args.fanout}", flush=True)
@@ -59,7 +59,6 @@ def main():
     # Peer Discovery
     print(f"[{self_id}] Starting peer discovery", flush=True)
     start_peer_discovery(self_id, self_info)
-
     print(f"[{self_id}] Starting ping loop", flush=True)
     start_ping_loop(self_id, known_peers)
 
