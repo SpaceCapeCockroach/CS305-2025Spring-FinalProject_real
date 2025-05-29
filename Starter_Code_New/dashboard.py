@@ -4,7 +4,7 @@ from peer_manager import peer_status, rtt_tracker
 from transaction import get_recent_transactions
 from outbox import rate_limiter
 from message_handler import get_redundancy_stats
-from peer_discovery import known_peers
+from peer_discovery import known_peers,peer_flags
 import json
 from block_handler import received_blocks
 
@@ -37,23 +37,28 @@ def blocks():
 
 @app.route('/peers')
 def peers():
-    # TODO: display the information of known peers, including `{peer's ID, IP address, port, status, NATed or non-NATed, lightweight or full}`.
-    #pass
-    # 展示已知节点信息
-    if known_peers_ref is None:
-        return jsonify({"error": "No peer data"}), 500
     peers_info = []
-    for peer_id, peer_info in known_peers_ref.items():
-        info = {
+    # 遍历所有已知节点的ID
+    for peer_id in known_peers_ref:
+        # 基础信息获取
+        ip, port = known_peers_ref.get(peer_id, ("unknown", "unknown"))
+        flags = peer_flags.get(peer_id, {})
+        status = peer_status.get(peer_id, "UNREACHABLE")
+        
+        # 构建节点信息字典
+        peer_data = {
             "peer_id": peer_id,
-            "ip": info.get("ip"),
-            "port": info.get("port"),
-            "status": peer_status.get(peer_id, "unknown"),
-            # "NATed": peer.get("NATed", False),
-            # "type": "full" if peer.get("is_full", False) else "lightweight"
+            "ip": ip,
+            "port": port,
+            "status": status,
+            "NATed": flags.get("nat", False),
+            "type": "lightweight" if flags.get("light", False) else "full",
+            "latency": f"{rtt_tracker.get(peer_id, 0):.2f}ms"
         }
-        peers_info.append(info)
-    return jsonify(peers_info)
+        
+        peers_info.append(peer_data)
+    
+    return jsonify(sorted(peers_info, key=lambda x: x["peer_id"]))
 
 @app.route('/transactions')
 def transactions():

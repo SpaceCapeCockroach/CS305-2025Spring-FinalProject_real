@@ -236,7 +236,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
         # TODO: If the blocks exist in the local blockchain, send the blocks one by one to the requester using the function `enqueue_message` in `outbox.py`.
 
         # pass
-        
+       
         requested = msg["request_ids"]
         # retries = msg.get("retries", 0)
         
@@ -244,18 +244,22 @@ def dispatch_message(msg_raw, self_id, self_ip):
         
         for bid in requested:
             # 尝试从本地区块链获取区块
-            for i in range(4):  # 最多重新尝试3次
+            for i in range(4):  # 最多重新尝试3次 
+                request_delay=2**i
                 block = get_block_by_id(bid)
                 if block:
                     found.append(block)
                     break
                 else:
+                    # if is_orphan(bid):
+                    #     request_par
                     if i ==3:
                         print(f"[{self_id}] 无法获取区块 {bid[:8]}，已放弃...")
                         break
                 # 如果区块不在本地，尝试从其他节点获取
                     new_getblock = create_getblock(self_id, [bid])
                     gossip_message(self_id, json.dumps(new_getblock))
+                time.sleep(request_delay)  # 等待一段时间再重试
         
         # 发送找到的区块
         for block in found:
