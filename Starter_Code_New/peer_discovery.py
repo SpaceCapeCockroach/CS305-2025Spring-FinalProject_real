@@ -47,7 +47,7 @@ def start_peer_discovery(self_id, self_info):
                 },
                 "fanout": peer_config.get(self_id, {}).get('fanout', 0),  # 可选字段，fanout值
                 "localnetworkid": peer_config.get(self_id, {}).get('localnetworkid', None),
-                "relay":peer_id,
+                "relay":self_id,
                 "TTL": 3,  # 可选字段，TTL值
                 "message_id": generate_message_id()
             }
