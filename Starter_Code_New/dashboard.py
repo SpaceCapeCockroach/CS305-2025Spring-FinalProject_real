@@ -23,7 +23,7 @@ def start_dashboard(peer_id, port):
 
 @app.route('/')
 def home():
-    return "Block P2P Network Simulation"
+    return render_template('dashboard.html')
 
 @app.route('/dashboard')
 def dashboard():
