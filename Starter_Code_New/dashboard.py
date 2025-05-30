@@ -4,7 +4,7 @@ from peer_manager import peer_status, rtt_tracker
 from transaction import get_recent_transactions
 from outbox import rate_limiter
 from message_handler import get_redundancy_stats
-from peer_discovery import known_peers,peer_flags
+from peer_discovery import known_peers,peer_flags,peer_config
 import json
 from block_handler import received_blocks
 from outbox import get_outbox_status
@@ -49,6 +49,7 @@ def peers():
         ip, port = known_peers_ref.get(peer_id, ("unknown", "unknown"))
         flags = peer_flags.get(peer_id, {})
         status = peer_status.get(peer_id, "UNREACHABLE")
+        localnetwork_id= peer_config.get(peer_id, {}).get("localnetworkid", "unknown")
         
         # 构建节点信息字典
         peer_data = {
@@ -59,7 +60,7 @@ def peers():
             "NATed": flags.get("nat", False),
             "type": "lightweight" if flags.get("light", False) else "full",
             "latency": f"{rtt_tracker.get(peer_id, 0):.2f}ms",
-            "localnetworkid": flags.get("localnetworkid", "unknown")
+            "localnetworkid": localnetwork_id
         }
         
         peers_info.append(peer_data)

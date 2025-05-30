@@ -977,7 +977,7 @@
             
             // 更新节点表格
             let tableHTML = '';
-            peers.slice(0, 5).forEach(peer => {
+            peers.slice(0, 10).forEach(peer => {
                 const shortId = peer.peer_id.length > 10 ? 
                     peer.peer_id.substr(0, 6) + '...' + peer.peer_id.substr(-4) : 
                     peer.peer_id;
