@@ -47,7 +47,8 @@
       "ip": "172.28.0.17",
       "port": 5007,
       "fanout":1,
-      "nat": true
+      "nat": true,
+      "localnetworkid":2
     },
     "5008": {
       "ip": "172.28.0.18",

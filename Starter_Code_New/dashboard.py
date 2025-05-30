@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from threading import Thread
 from peer_manager import peer_status, rtt_tracker
 from transaction import get_recent_transactions
@@ -25,6 +25,10 @@ def start_dashboard(peer_id, port):
 def home():
     return "Block P2P Network Simulation"
 
+@app.route('/dashboard')
+def dashboard():
+    """仪表盘页面"""
+    return render_template('dashboard.html')
 @app.route('/blocks')
 def blocks():
     # TODO: display the blocks in the local blockchain.
@@ -54,7 +58,8 @@ def peers():
             "status": status,
             "NATed": flags.get("nat", False),
             "type": "lightweight" if flags.get("light", False) else "full",
-            "latency": f"{rtt_tracker.get(peer_id, 0):.2f}ms"
+            "latency": f"{rtt_tracker.get(peer_id, 0):.2f}ms",
+            "localnetworkid": flags.get("localnetworkid", "unknown")
         }
         
         peers_info.append(peer_data)

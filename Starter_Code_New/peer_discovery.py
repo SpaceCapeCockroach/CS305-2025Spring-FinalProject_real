@@ -5,8 +5,23 @@ from utils import generate_message_id
 known_peers = {}        # { peer_id: (ip, port) }
 peer_flags = {}         # { peer_id: { 'nat': True/False, 'light': True/False } }
 reachable_by = {}       # { peer_id: { set of peer_ids who can reach this peer }}
-peer_config={}
+peer_config={}          
 
+def is_reachable(self_id, target_id):
+    self_nat = peer_flags.get(self_id, {}).get('nat', False)
+    target_nat = peer_flags.get(target_id, {}).get('nat', False)
+    self_network = peer_config.get(self_id, {}).get('localnetworkid')
+    target_network = peer_config.get(target_id, {}).get('localnetworkid')
+    
+    # 非NAT节点可以访问任何节点
+    if not self_nat:
+        return True
+    
+    # NAT节点只能访问同一网络的节点
+    if self_nat and target_nat and self_network == target_network:
+        return True
+    
+    return False
 def start_peer_discovery(self_id, self_info):
     from outbox import enqueue_message
     def loop():
@@ -32,12 +47,18 @@ def start_peer_discovery(self_id, self_info):
                 },
                 "message_id": generate_message_id()
             }
-
+            self_network_id=peer_config.get(self_id, {}).get('localnetworkid', None)
             # 2. 发送给所有已知节点
             k_peers = known_peers.copy()  # 避免在迭代时修改字典
             for peer_id in k_peers:
                 if peer_id == self_id: continue  # 不发送给自己
                 peer_ip, peer_port = known_peers[peer_id]
+                target_config = peer_config.get(peer_id, {})
+                peer_network_id = target_config.get('localnetworkid', None)
+                if self_network_id and peer_network_id:
+                    if self_network_id != peer_network_id:
+                        print(f"[debug]Skipping hello to {peer_id} due to different local network ID: {self_network_id} vs {peer_network_id}")
+                        continue
                 enqueue_message(
                     peer_id, peer_ip ,peer_port,json.dumps(message),
                 )

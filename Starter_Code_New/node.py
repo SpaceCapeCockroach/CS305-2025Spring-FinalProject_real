@@ -5,7 +5,7 @@ import threading
 import argparse
 import time
 import traceback
-from peer_discovery import start_peer_discovery, known_peers, peer_flags, peer_config
+from peer_discovery import start_peer_discovery, known_peers, peer_flags,peer_config
 from block_handler import block_generation, request_block_sync
 # from message_handler import cleanup_seen_messages
 from socket_server import start_socket_server
