@@ -205,7 +205,7 @@ def send_from_queue(self_id):
     threading.Thread(target=worker, daemon=True).start()
 
 def relay_or_direct_send(self_id, dst_id, message):
-    from peer_discovery import known_peers, peer_flags
+    from peer_discovery import known_peers, peer_flags,is_reachable,peer_config
 
     # TODO: Check if the target peer is NATed. 
 
@@ -219,7 +219,11 @@ def relay_or_direct_send(self_id, dst_id, message):
     # pass
     # 检查目标是否NAT
     print(f"[debug]Sending message to {dst_id} from {self_id} - Message: {message}")
-    if peer_flags.get(dst_id, {}).get("nat", False):
+
+    direct = peer_config.get(self_id,{}).get("localnetworkid",None)==peer_config.get(dst_id,{}).get("localnetworkid",None) or (not peer_flags.get(dst_id, {}).get("nat", False) and not peer_flags.get(self_id, {}).get("nat", False)) 
+    if not direct:
+    # if not is_reachable(self_id, dst_id):
+    # if peer_flags.get(dst_id, {}).get("nat", False):
         relay_peer = get_relay_peer(self_id, dst_id)
         if relay_peer:
             relay_msg = {
