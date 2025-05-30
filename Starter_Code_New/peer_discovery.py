@@ -16,6 +16,8 @@ def start_peer_discovery(self_id, self_info):
         # The `message ID` can be a random number.
 
         # TODO: Send a `hello` message to all known peers and put the messages into the outbox queue.
+        # Tips: A NATed peer can only say hello to peers in the same local network. 
+        #       If a peer and a NATed peer are not in the same local network, they cannot say hello to each other.
         # pass
         # 1. 构造hello消息
         while True:
