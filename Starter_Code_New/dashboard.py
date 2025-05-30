@@ -50,6 +50,7 @@ def peers():
         flags = peer_flags.get(peer_id, {})
         status = peer_status.get(peer_id, "UNREACHABLE")
         localnetwork_id= peer_config.get(peer_id, {}).get("localnetworkid", "unknown")
+
         
         # 构建节点信息字典
         peer_data = {

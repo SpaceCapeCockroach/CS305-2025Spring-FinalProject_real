@@ -16,6 +16,7 @@ from outbox import send_from_queue,start_dynamic_capacity_adjustment
 from inv_message import broadcast_inventory
 from transaction import transaction_generation
 
+
 def main():
     
     # Import the peer's configuration from command line
@@ -42,8 +43,16 @@ def main():
     }
 
     for peer_id, peer_info in config["peers"].items():
-        known_peers[peer_id] = (peer_info["ip"], peer_info["port"])
-        peer_config = config["peers"]
+        # Check if the peer is reachable based on local network ID and NAT status
+        if (peer_info.get("localnetworkid",None) == self_info.get("localnetworkid",None)) or (peer_info.get("nat", False) and self_info.get("nat", False)):
+            known_peers[peer_id] = (peer_info["ip"], peer_info["port"])
+            peer_config[peer_id] = peer_info
+
+
+    # peer_config.update(config["peers"])
+    # print(f"[{self_id}] Peer configuration loaded: {peer_config}", flush=True)
+
+
     print(f"[{self_id}] 知道的peers初始化: {known_peers}", flush=True)
     if args.fanout:
         peer_config[self_id]["fanout"] = args.fanout
