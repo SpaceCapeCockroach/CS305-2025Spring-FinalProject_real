@@ -9,13 +9,13 @@ reachable_by = {}       # { peer_id: { set of peer_ids who can reach this peer }
 peer_config={}          
 from peer_manager import peer_status
 def is_reachable(self_id, target_id):
-    self_nat = peer_flags.get(self_id, {}).get('nat', False)
-    target_nat = peer_flags.get(target_id, {}).get('nat', False)
+    self_nat = peer_config.get(self_id, {}).get('nat', False)
+    target_nat = peer_config.get(target_id, {}).get('nat', False)
     self_network = peer_config.get(self_id, {}).get('localnetworkid',None)
     target_network = peer_config.get(target_id, {}).get('localnetworkid',None)
     
     # 非NAT节点可以访问任何非NAT节点
-    if self_nat and target_nat:
+    if not self_nat and not target_nat:
         return True
     
     # 同一网络内的节点可以互相访问
