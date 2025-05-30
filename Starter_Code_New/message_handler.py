@@ -82,8 +82,8 @@ def dispatch_message(msg_raw, self_id, self_ip):
 
     sender_id = msg["sender"]
 
-    if sender_id not in known_peers:
-        print(f"[{self_id}] 未知节点 {sender_id} 发送消息，丢弃")
+    if sender_id not in known_peers and msg_type != "HELLO":
+        print(f"[{self_id}] 未知节点 {sender_id} 发送的非HELLO消息,丢弃")
         return
     
     try:

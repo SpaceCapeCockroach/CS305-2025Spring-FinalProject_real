@@ -19,7 +19,7 @@ def start_socket_server(self_id, self_ip, port):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = (self_ip, port)
         server_socket.bind(server_address)
-        server_socket.listen(10)  # 允许最大等待连接数
+        server_socket.listen(20)  # 允许最大等待连接数
         print(f"TCP server started on {self_ip}:{port}")
         while True: 
             # 接受新连接
