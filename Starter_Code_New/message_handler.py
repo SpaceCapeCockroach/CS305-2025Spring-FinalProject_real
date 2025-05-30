@@ -81,6 +81,11 @@ def dispatch_message(msg_raw, self_id, self_ip):
     # TODO: Check if the sender exists in the `blacklist` of `peer_manager.py`. If yes, drop the message.
 
     sender_id = msg["sender"]
+
+    if sender_id not in known_peers:
+        print(f"[{self_id}] 未知节点 {sender_id} 发送消息，丢弃")
+        return
+    
     try:
         msg_id = msg["message_id"]
     except Exception as e:
@@ -130,7 +135,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
     elif msg_type == "HELLO":
         # TODO: Call the function `handle_hello_message` in `peer_discovery.py` to process the message.
         # pass
-        handle_hello_message(msg_raw, self_ip)
+        handle_hello_message(msg_raw, self_id)
 
     elif msg_type == "BLOCK":
         # TODO: Check the correctness of block ID. If incorrect, record the sender's offence using the function `record_offence` in `peer_manager.py`.

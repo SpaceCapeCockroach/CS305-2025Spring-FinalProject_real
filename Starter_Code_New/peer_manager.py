@@ -80,14 +80,14 @@ def handle_pong(msg):
         print(f"Invalid pong message: {e}")
 
 
-def start_peer_monitor():
+def start_peer_monitor(self_id):
     import threading
     def loop():
         # TODO: Check the latest time to receive `ping` or `pong` message from each peer in `last_ping_time`.
 
         # TODO: If the latest time is earlier than the limit, mark the peer's status in `peer_status` as `UNREACHABLE` or otherwise `ALIVE`.
         TIMEOUT = 120  # 2分钟无响应视为离线
-        
+        peer_status[self_id] = 'MYSELF'# 自己的状态始终是 ALIVE
         while True:
             current_time = time.time()
             

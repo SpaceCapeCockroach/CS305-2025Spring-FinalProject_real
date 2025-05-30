@@ -236,7 +236,7 @@ def relay_or_direct_send(self_id, dst_id, message):
     else:
         # 直接发送
         return send_message(known_peers[dst_id][0], known_peers[dst_id][1], message)
-
+        
 def get_relay_peer(self_id, dst_id):
     from peer_manager import  rtt_tracker ,Lock
     from peer_discovery import known_peers, reachable_by 
@@ -252,15 +252,19 @@ def get_relay_peer(self_id, dst_id):
     min_rtt = float('inf')
 
     for peer in candidates:
-        with lock:
-            current_rtt = rtt_tracker.get(peer, 1000)  # 默认1秒
+        with Lock:
+            # current_rtt = rtt_tracker.get(peer, 1000)  # 默认1秒
             current_rtt = sum(rtt_tracker.get(peer, [1000])) / len(rtt_tracker.get(peer, [1000]))
         if current_rtt < min_rtt:
             min_rtt = current_rtt
             best_peer = peer
 
-
-    return (known_peers[best_peer][0], known_peers[best_peer][1]) if best_peer else None
+    try:
+        return (known_peers[best_peer][0], known_peers[best_peer][1]) if best_peer else None
+    except KeyError:
+        print(f"Target peer {best_peer} not found in known peers.")
+        return None
+    
     # return best_peer  # (peer_id, ip, port) or None
 
 def apply_network_conditions(send_func):

@@ -44,7 +44,7 @@ def main():
 
     for peer_id, peer_info in config["peers"].items():
         # Check if the peer is reachable based on local network ID and NAT status
-        if (peer_info.get("localnetworkid",None) == self_info.get("localnetworkid",None)) or (peer_info.get("nat", False) and self_info.get("nat", False)):
+        if (peer_info.get("localnetworkid",None) == self_info.get("localnetworkid",None)) or ((not peer_info.get("nat", False)) and (not self_info.get("nat", False))):
             known_peers[peer_id] = (peer_info["ip"], peer_info["port"])
             peer_config[peer_id] = peer_info
 
@@ -72,7 +72,8 @@ def main():
     start_ping_loop(self_id, known_peers)
 
     print(f"[{self_id}] Starting peer monitor", flush=True)
-    start_peer_monitor()
+    
+    start_peer_monitor(self_id)
 
     # Block and Transaction Generation and Verification
     print(f"[{self_id}] Starting block sync thread", flush=True)

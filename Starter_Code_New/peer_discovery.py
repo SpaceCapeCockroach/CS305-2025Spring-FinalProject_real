@@ -63,7 +63,7 @@ def start_peer_discovery(self_id, self_info):
                 enqueue_message(
                     peer_id, peer_ip ,peer_port,json.dumps(message),
                 )
-                print(f"[debug]Sent hello message to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
+                print(f"[{self_id}][debug]Sent hello message to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
             time.sleep(20)
     threading.Thread(target=loop, daemon=True).start()
 
@@ -101,12 +101,13 @@ def handle_hello_message(msg, self_id):
                 enqueue_message(
                     peer_id, peer_ip ,peer_port,json.dumps(data),
                 )
-                print(f"[relay_hello]Relay hello message from sender:{sender_id} to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
+                print(f"[{self_id}][relay_hello]Relay hello message from sender:{sender_id} to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
         
         # 2. 处理新节点
        
         peer_flags[sender_id] = flags
-        if sender_id not in known_peers or (not peer_status.get(sender_id, 'UNKNOWN') == 'ALIVE'):
+        if sender_id not in known_peers :
+            # or (not peer_status.get(sender_id, 'UNKNOWN') == 'ALIVE')
             # 如果是新节点，或者之前的节点状态不是ALIVE    
             known_peers[sender_id] = (ip, port)
             peer_config[sender_id] = {
@@ -117,7 +118,7 @@ def handle_hello_message(msg, self_id):
                 "light": flags.get('light', False),
                 "localnetworkid": data.get('localnetworkid', None)
             }
-            print(f"New peer discovered: {sender_id}@{ip}:{port}")
+            print(f"[{self_id}]New peer discovered: {sender_id}@{ip}:{port}")
         
         # 添加中间节点到reachable_by
         reachable_by.setdefault(sender_id, set()).add(relay)
