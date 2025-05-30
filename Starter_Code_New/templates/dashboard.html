@@ -606,13 +606,18 @@
                             <span class="loading"></span>刷新
                         </button>
                     </div>
+                    <div class="table-container"></div>
                     <table>
                         <thead>
                             <tr>
-                                <th>节点ID</th>
-                                <th>状态</th>
-                                <th>延迟</th>
-                                <th>类型</th>
+                               <th>节点ID</th>
+                               <th>IP地址</th>
+                               <th>端口</th>
+                               <th>状态</th>
+                               <th>延迟</th>
+                               <th>类型</th>
+                               <th>NAT状态</th>
+                               <th>本地网络</th>
                             </tr>
                         </thead>
                         <tbody id="peers-table">
@@ -977,7 +982,7 @@
             
             // 更新节点表格
             let tableHTML = '';
-            peers.slice(0, 10).forEach(peer => {
+             peers.forEach(peer => {
                 const shortId = peer.peer_id.length > 10 ? 
                     peer.peer_id.substr(0, 6) + '...' + peer.peer_id.substr(-4) : 
                     peer.peer_id;
@@ -993,17 +998,24 @@
                 const peerType = peer.type === 'lightweight' ? 'peer-light' : 'peer-full';
                 const peerTypeText = peer.type === 'lightweight' ? '轻节点' : '全节点';
                 
+                const natStatus = peer.NATed ? '已启用' : '未启用';
+                const natClass = peer.NATed ? 'status-syncing' : '';
+                
                 tableHTML += `
                 <tr>
-                    <td>${shortId}</td>
+                    <td title="${peer.peer_id}">${shortId}</td>
+                    <td>${peer.ip}</td>
+                    <td>${peer.port}</td>
                     <td><span class="status-badge ${statusClass}">${peer.status}</span></td>
                     <td><span class="latency-indicator ${latencyClass}"></span> ${peer.latency} ms</td>
                     <td><span class="peer-type ${peerType}">${peerTypeText}</span></td>
+                    <td><span class="status-badge ${natClass}">${natStatus}</span></td>
+                    <td>${peer.localnetworkid}</td>
                 </tr>
                 `;
             });
             
-            elements.peersTable.innerHTML = tableHTML || '<tr><td colspan="4" style="text-align: center;">无节点数据</td></tr>';
+            elements.peersTable.innerHTML = tableHTML || '<tr><td colspan="8" style="text-align: center;">无节点数据</td></tr>';
         }
         
         // 更新区块数据
