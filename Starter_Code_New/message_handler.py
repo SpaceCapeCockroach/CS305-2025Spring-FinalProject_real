@@ -181,6 +181,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
             return
             
         if add_transaction(tx):
+            
             gossip_message(self_id, msg_raw)
 
     elif msg_type == "PING":

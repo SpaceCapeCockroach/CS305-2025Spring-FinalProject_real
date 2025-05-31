@@ -21,23 +21,26 @@ def request_block_sync(self_id):
 
     # TODO: Send a `GET_BLOCK_HEADERS` message to each known peer and put the messages in the outbox queue.
     # pass
-    get_block_headers_msg = {
-        "type": "GET_BLOCK_HEADERS",
-        "sender": self_id,
-        "message_id": generate_message_id()
-    }
+    while True:
+        current_height= len(received_blocks)
+        get_block_headers_msg = {
+            "type": "GET_BLOCK_HEADERS",
+            "sender": self_id,
+            "message_id": generate_message_id()
+        }
 
-    # enqueue_message(target_id, ip, port, message)
+        # enqueue_message(target_id, ip, port, message)
 
 
-    k_peers = known_peers.copy()  # Avoid modifying the dictionary while iterating
-    for peer_id, (ip, port) in k_peers.items():
-        if peer_id != self_id:
+        k_peers = known_peers.copy()  # Avoid modifying the dictionary while iterating
+        for peer_id, (ip, port) in k_peers.items():
+            if peer_id != self_id:
 
-            enqueue_message(
-                peer_id,ip, port,
-                json.dumps(get_block_headers_msg),
-            )
+                enqueue_message(
+                    peer_id,ip, port,
+                    json.dumps(get_block_headers_msg),
+                )
+        time.sleep(30)  # 每30秒请求一次区块头信息
 
 def block_generation(self_id, MALICIOUS_MODE, interval=20):
     from inv_message import create_inv
@@ -154,7 +157,6 @@ def handle_block(msg, self_id):
             # 重复检查
             if any(b['block_id'] == block['block_id'] for b in received_blocks):
                 return
-                
             # 主链连接检查
             if  block['prev_id'] == '0'*64 :
                 print(f"接收到新区块 | 前哈希: {block['prev_id'][:8]}...")

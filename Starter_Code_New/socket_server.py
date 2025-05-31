@@ -39,7 +39,7 @@ def start_socket_server(self_id, self_ip, port):
                 if not data:  # 客户端正常关闭连接
                     print("Connection closed by client")
                     break
-                print(f"raw_msg:{data}\n")
+                #print(f"raw_msg:{data}\n")
                 # try:
                 dispatch_message(data.decode(), self_id, self_ip)
                 # except Exception as e:

@@ -102,7 +102,7 @@ def add_transaction(tx):
         # 验证交易有效性
         # if not _validate_transaction(tx):
         #     return False
-        
+        print(f"在add_transaction中添加交易到交易池: {tx.to_peer} -> {tx.from_peer}, 金额: {tx.amount}, ID: {tx.id}")
         tx_pool.append(tx)
         tx_ids.add(tx.id)
         return True
@@ -112,11 +112,15 @@ def get_recent_transactions():
     # TODO: Return all transactions in the local `tx_pool`.
     # pass
     with tx_lock:
+        print(f"获取交易池，当前交易数: {len(tx_pool)}")
         return [tx.to_dict() for tx in tx_pool]
 
-def clear_pool():
+def clear_pool(): 
+    global tx_pool, tx_ids
     # Remove all transactions in `tx_pool` and transaction IDs in `tx_ids`.
+    print("正打算清空交易池")
     with tx_lock:
+        print(f"清空交易池，当前交易数: {len(tx_pool)}")
         tx_pool.clear()
         tx_ids.clear()
     pass

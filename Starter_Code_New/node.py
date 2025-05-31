@@ -53,7 +53,7 @@ def main():
     # print(f"[{self_id}] Peer configuration loaded: {peer_config}", flush=True)
 
 
-    print(f"[{self_id}] 知道的peers初始化: {known_peers}", flush=True)
+    #print(f"[{self_id}] 知道的peers初始化: {known_peers}", flush=True)
     if args.fanout:
         peer_config[self_id]["fanout"] = args.fanout
         print(f"[{self_id}] Overriding fanout to {args.fanout}", flush=True)
