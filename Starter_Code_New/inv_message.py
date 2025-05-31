@@ -23,6 +23,7 @@ def get_inventory():
     # pass
     from block_handler import received_blocks, block_lock
     with block_lock:
+        print(f"获取本地区块链的区块数量: {len(received_blocks)}")
         return [block["block_id"] for block in received_blocks]
         #return a list of block IDs from the received_blocks list
 

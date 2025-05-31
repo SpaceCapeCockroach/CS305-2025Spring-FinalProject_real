@@ -6,7 +6,7 @@ from outbox import rate_limiter
 from message_handler import get_redundancy_stats
 from peer_discovery import known_peers,peer_flags,peer_config
 import json
-from block_handler import received_blocks
+from block_handler import received_blocks,orphan_blocks
 from outbox import get_outbox_status
 
 app = Flask(__name__)
@@ -96,7 +96,17 @@ def capacity():
 @app.route('/orphans')
 def orphan_blocks():
     # TODO: display the orphaned blocks.
-    pass
+    #pass
+    orphan_blocks_info = []
+    for prev_id, blocks in orphan_blocks.items():
+        for block in blocks:
+            orphan_blocks_info.append({
+                "prev_id": prev_id,
+                "block_id": block.get("block_id", "unknown"),
+                "timestamp": block.get("timestamp", "unknown"),
+                "tx_count": len(block.get("tx_list", []))
+            })
+    return jsonify(orphan_blocks_info)
 
 @app.route('/redundancy')
 def redundancy_stats():

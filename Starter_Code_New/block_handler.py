@@ -10,10 +10,16 @@ from outbox import  enqueue_message, gossip_message
 from utils import generate_message_id
 from peer_manager import record_offense
 
+
 received_blocks = [] # The local blockchain. The blocks are added linearly at the end of the set.
 header_store = [] # The header of blocks in the local blockchain. Used by lightweight peers.
 orphan_blocks = {} # The block whose previous block is not in the local blockchain. Waiting for the previous block.
 
+chains={
+    "main":received_blocks,
+    "forks":[]#key:分叉点id，value:分叉点高度的区块列表
+}
+current_chain = "main"
 block_lock = threading.RLock()  # Lock for thread-safe access to received_blocks and orphan_blocks
 
 def request_block_sync(self_id):
@@ -42,7 +48,7 @@ def request_block_sync(self_id):
                 )
         time.sleep(30)  # 每30秒请求一次区块头信息
 
-def block_generation(self_id, MALICIOUS_MODE, interval=20):
+def block_generation(self_id, MALICIOUS_MODE, interval=100):
     from inv_message import create_inv
     def mine():
 
@@ -63,7 +69,6 @@ def block_generation(self_id, MALICIOUS_MODE, interval=20):
                 continue
             
             with block_lock:
-                received_blocks.append(block)
                 header_store.append({
                     'hash': block['block_id'],
                     'timestamp': block['timestamp'],
@@ -76,7 +81,7 @@ def block_generation(self_id, MALICIOUS_MODE, interval=20):
                 inv_msg = create_inv(self_id, [block['block_id']])
                 gossip_message(self_id,json.dumps(inv_msg))
                 print(f"生成新区块 #{len(received_blocks)} | Hash: {block['block_id'][:16]}...")
-                
+            handle_block(json.dumps(block), self_id)
             time.sleep(interval)
     threading.Thread(target=mine, daemon=True).start()
 
@@ -112,7 +117,6 @@ def create_dummy_block(peer_id, MALICIOUS_MODE):
         block['block_id'] = hashlib.sha256(str(time.time()).encode()).hexdigest()
     else:
         block['block_id'] = compute_block_hash(block)
-
     return block
 
 def compute_block_hash(block):

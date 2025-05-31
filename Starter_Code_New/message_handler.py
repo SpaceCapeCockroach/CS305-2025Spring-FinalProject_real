@@ -83,7 +83,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
     sender_id = msg["sender"]
 
     if sender_id not in known_peers and msg_type != "HELLO":
-        print(f"[{self_id}] 未知节点 {sender_id} 发送的非HELLO消息,丢弃")
+        #print(f"[{self_id}] 未知节点 {sender_id} 发送的非HELLO消息,丢弃")
         return
     
     try:
@@ -218,6 +218,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
         # TODO: Send the `GETBLOCK` message to the sender using the function `enqueue_message` in `outbox.py`.
 
         # pass
+        print(f"[{self_id}] 收到INV消息 from {sender_id}，包含区块ID: {msg['block_ids']}")
         local_inv = get_inventory()
         remote_inv = set(msg["block_ids"])
         missing = remote_inv - set(local_inv)

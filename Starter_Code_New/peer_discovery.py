@@ -101,7 +101,7 @@ def handle_hello_message(msg, self_id):
                 enqueue_message(
                     peer_id, peer_ip ,peer_port,json.dumps(data),
                 )
-                print(f"[{self_id}][relay_hello]Relay hello message from sender:{sender_id} to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
+                #print(f"[{self_id}][relay_hello]Relay hello message from sender:{sender_id} to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
         
         # 2. 处理新节点
        
