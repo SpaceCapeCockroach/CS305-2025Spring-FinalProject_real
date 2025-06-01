@@ -227,7 +227,150 @@
         .btn:hover {
             background: var(--highlight);
         }
-        
+         .block-tree {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .block-node {
+            margin: 10px 0;
+        }
+
+        .block-header {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .block-header:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .toggle-icon {
+            width: 20px;
+            height: 20px;
+display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: var(--highlight);
+        }
+
+        .block-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--highlight);
+            margin-right: 10px;
+        }
+
+        .block-info {
+            flex: 1;
+        }
+
+        .block-id {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .block-hash {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: monospace;
+            margin-top: 3px;
+        }
+
+        .children-container {
+            margin-left: 30px;
+            padding-left: 15px;
+            border-left: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .block-details {
+            margin-top: 5px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 5px;
+        }
+
+        .detail-label {
+            width: 100px;
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .tx-list {
+            margin-top: 5px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+
+        .tx-item {
+            padding: 5px;
+            margin-bottom: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .tx-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.07);
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .search-box button {
+            margin-left: 10px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-box button:hover {
+            background: var(--highlight);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -456,18 +599,98 @@
 </head>
 <body>
     <div class="container">
-        <!-- 侧边导航栏保持不变 -->
-        
-        <!-- 主内容区 -->
-        <div class="main-content">
-            <div class="header">
-                <h2>网络总览</h2>
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="搜索区块、交易或节点..." id="search-input">
+        <!-- 侧边导航栏 -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-project-diagram"></i>
+                <h1>P2P 仪表盘</h1>
+            </div>
+            
+            <div class="nav-links">
+                <div class="nav-item active" data-section="overview">
+                    <i class="fas fa-home"></i>
+                    <span>总览</span>
+                </div>
+                <div class="nav-item" data-section="blocks">
+                    <i class="fas fa-cube"></i>
+                    <span>区块浏览器</span>
+                </div>
+                <div class="nav-item" data-section="peers">
+                    <i class="fas fa-network-wired"></i>
+                    <span>节点监控</span>
+                </div>
+                <div class="nav-item" data-section="transactions">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>交易池</span>
+                </div>
+                <div class="nav-item" data-section="performance">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>网络性能</span>
+                </div>
+                <div class="nav-item" data-section="outbox">
+                    <i class="fas fa-envelope"></i>
+                    <span>消息队列</span>
+                </div>
+                <div class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>设置</span>
                 </div>
             </div>
             
+            <div class="system-info">
+                <div>
+                    <span>节点ID:</span>
+                    <span id="node-id">加载中...</span>
+                </div>
+                <div>
+                    <span>区块高度:</span>
+                    <span id="block-height">#0</span>
+                </div>
+                <div>
+                    <span>运行时间:</span>
+                    <span id="uptime">0天 0小时</span>
+                </div>
+                <div>
+                    <span>版本:</span>
+                    <span>v2.1.4</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main-content">
+              <div id="blocks-page" style="display: none;"></div>
+                    <div class="header">
+                        <h2>网络总览</h2>
+                        <div class="search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="搜索区块、交易或节点..." id="search-input">
+                        </div>
+                    </div>
+                <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">区块链视图</div>
+                            <button class="btn" id="refresh-blocks-tree">刷新</button>
+                        </div>
+
+                        <div class="search-box">
+                            <input type="text" id="block-search" placeholder="输入区块ID或交易ID...">
+                            <button id="search-block-btn">搜索</button>
+                        </div>
+
+                        <div id="blocks-tree-container">
+                            <div class="loading-block">
+                                <div class="block-row">
+                                    <div class="block-icon">
+                                        <i class="fas fa-cube"></i>
+                                    </div>
+                                    <div class="block-info">
+                                        <div>加载区块树结构中...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
             <!-- 统计卡片 -->
             <div class="stats-container">
                 <div class="stat-card">
@@ -850,16 +1073,209 @@
         }
         
         // 获取区块数据
-        async function fetchBlocks() {
-            try {
-                elements.blocksList.innerHTML = '<div class="block-row"><div class="block-icon"><i class="fas fa-cube"></i></div><div class="block-info"><div>加载中...</div></div></div>';
+
+        // 新增区块树渲染功能
+        function renderBlockTree(data, container) {
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="empty-message">区块链为空</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // 递归渲染区块
+            function renderNode(node, parentElement, level) {
+                const blockNode = document.createElement('div');
+                blockNode.className = 'block-node';
                 
+                // 区块头部
+                const blockHeader = document.createElement('div');
+                blockHeader.className = 'block-header';
+                blockNode.appendChild(blockHeader);
+                
+                // 切换图标
+                const toggleIcon = document.createElement('div');
+                toggleIcon.className = 'toggle-icon';
+                toggleIcon.innerHTML = node.children && node.children.length ? '<i class="fas fa-minus"></i>' : '•';
+                blockHeader.appendChild(toggleIcon);
+                
+                // 区块指示器
+                const indicator = document.createElement('div');
+                indicator.className = 'block-indicator';
+                blockHeader.appendChild(indicator);
+                
+                // 区块信息
+                const blockInfo = document.createElement('div');
+                blockInfo.className = 'block-info';
+                blockHeader.appendChild(blockInfo);
+                
+                // 区块ID
+                const blockId = document.createElement('div');
+                blockId.className = 'block-id';
+                blockId.textContent = `区块 ID: ${node.block.block_id}`;
+                blockInfo.appendChild(blockId);
+                
+                // 区块哈希
+                const blockHash = document.createElement('div');
+                blockHash.className = 'block-hash';
+                blockHash.textContent = `父区块: ${node.block.prev_id || '无'}`;
+                blockInfo.appendChild(blockHash);
+                
+                // 区块详情容器
+                const detailsContainer = document.createElement('div');
+                detailsContainer.className = 'block-details';
+                blockNode.appendChild(detailsContainer);
+                
+                // 添加详情内容
+                const senderInfo = document.createElement('div');
+                senderInfo.className = 'detail-row';
+                senderInfo.innerHTML = `<span class="detail-label">生产者:</span><span class="detail-value">${node.block.sender || '未知'}</span>`;
+                detailsContainer.appendChild(senderInfo);
+                
+                const timestampInfo = document.createElement('div');
+                timestampInfo.className = 'detail-row';
+                const time = new Date(node.block.timestamp * 1000);
+                timestampInfo.innerHTML = `<span class="detail-label">时间:</span><span class="detail-value">${time.toLocaleString()}</span>`;
+                detailsContainer.appendChild(timestampInfo);
+                
+                // 交易列表
+                if (node.block.tx_list && node.block.tx_list.length) {
+                    const txInfo = document.createElement('div');
+                    txInfo.className = 'detail-row';
+                    txInfo.innerHTML = `<span class="detail-label">交易数:</span><span class="detail-value">${node.block.tx_list.length}</span>`;
+                    detailsContainer.appendChild(txInfo);
+                    
+                    const txList = document.createElement('div');
+                    txList.className = 'tx-list';
+                    
+                    node.block.tx_list.slice(0, 3).forEach(tx => {
+                        const txItem = document.createElement('div');
+                        txItem.className = 'tx-item';
+                        txItem.textContent = `TX: ${tx.tx_id || tx.message_id || '未知交易'}`;
+                        txList.appendChild(txItem);
+                    });
+                    
+                    if (node.block.tx_list.length > 3) {
+                        const more = document.createElement('div');
+                        more.className = 'tx-item';
+                        more.textContent = `+ ${node.block.tx_list.length - 3} 更多交易...`;
+                        txList.appendChild(more);
+                    }
+                    
+                    detailsContainer.appendChild(txList);
+                }
+                
+                // 默认展开第一级
+                if (level < 2) {
+                    detailsContainer.style.display = 'block';
+                } else {
+                    detailsContainer.style.display = 'none';
+                }
+                
+                // 添加折叠/展开功能
+                blockHeader.addEventListener('click', function() {
+                    if (toggleIcon.querySelector('i')) {
+                        const icon = toggleIcon.querySelector('i');
+                        if (icon.classList.contains('fa-minus')) {
+                            icon.classList.remove('fa-minus');
+                            icon.classList.add('fa-plus');
+                        } else {
+                            icon.classList.remove('fa-plus');
+                            icon.classList.add('fa-minus');
+                        }
+                    }
+                    
+                    // 切换详情显示
+                    if (detailsContainer.style.display === 'none') {
+                        detailsContainer.style.display = 'block';
+                    } else {
+                        detailsContainer.style.display = 'none';
+                    }
+                });
+                
+                // 如果有子节点，递归渲染
+                if (node.children && node.children.length > 0) {
+                    const childrenContainer = document.createElement('div');
+                    childrenContainer.className = 'children-container';
+                    
+                    node.children.forEach(child => {
+                        renderNode(child, childrenContainer, level + 1);
+                    });
+                    
+                    blockNode.appendChild(childrenContainer);
+                    
+                    // 为父节点添加折叠功能
+                    blockHeader.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        
+                        if (childrenContainer.style.display === 'none') {
+                            childrenContainer.style.display = 'block';
+                        } else {
+                            childrenContainer.style.display = 'none';
+                        }
+                    });
+                }
+                
+                parentElement.appendChild(blockNode);
+            }
+            
+            // 渲染所有根节点
+            data.forEach(rootNode => {
+                renderNode(rootNode, container, 0);
+            });
+        }
+        
+        // 更新页面切换功能
+        function setupPageNavigation() {
+            const pages = {
+                overview: document.getElementById('overview-page'),
+                blocks: document.getElementById('blocks-page'),
+                peers: document.getElementById('peers-page'),
+                transactions: document.getElementById('transactions-page'),
+                performance: document.getElementById('performance-page'),
+                outbox: document.getElementById('outbox-page'),
+                settings: document.getElementById('settings-page')
+            };
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    
+                    // 隐藏所有页面
+                    Object.values(pages).forEach(page => {
+                        if (page) page.style.display = 'none';
+                    });
+                    
+                    // 显示当前页面
+                    const currentPage = pages[section];
+                    if (currentPage) {
+                        currentPage.style.display = 'block';
+                        
+                        // 如果是区块页面，加载区块树
+                        if (section === 'blocks') {
+                            fetchBlocksTree();
+                        }
+                    }
+                    
+                    // 更新活动导航项
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+        
+        // 获取区块树数据
+        async function fetchBlocksTree() {
+            const container = document.getElementById('blocks-tree-container');
+            container.innerHTML = '<div class="loading-block">加载区块树结构中...</div>';
+            
+            try {
                 const response = await fetch('/blocks');
                 const data = await response.json();
-                updateBlocks(data);
+                renderBlockTree(data, container);
             } catch (error) {
-                console.error('获取区块数据失败:', error);
-                elements.blocksList.innerHTML = '<div class="block-row"><div class="block-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="block-info"><div>加载失败</div></div></div>';
+                console.error('获取区块树失败:', error);
+                container.innerHTML = '<div class="empty-message">无法加载区块数据</div>';
             }
         }
         
