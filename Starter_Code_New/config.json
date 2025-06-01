@@ -61,7 +61,7 @@
     "5009": {
       "ip": "172.28.0.19",
       "port": 5009,
-      "fanout":2,
+      "fanout":3,
       "localnetworkid":2
     },
     "5010": {

@@ -4,8 +4,8 @@ import time
 import hashlib
 import random
 from collections import defaultdict
-from peer_discovery import handle_hello_message, known_peers, peer_config
-from block_handler import handle_block, get_block_by_id, create_getblock, received_blocks, header_store
+from peer_discovery import handle_hello_message, known_peers, peer_config,peer_flags
+from block_handler import handle_block, get_block_by_id, create_getblock, received_blocks, header_store,orphan_blocks
 from inv_message import  create_inv, get_inventory
 from block_handler import create_getblock
 from peer_manager import  update_peer_heartbeat, record_offense, create_pong, handle_pong
@@ -83,7 +83,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
     sender_id = msg["sender"]
 
     if sender_id not in known_peers and msg_type != "HELLO":
-        #print(f"[{self_id}] 未知节点 {sender_id} 发送的非HELLO消息,丢弃")
+        print(f"[{self_id}] 未知节点 {sender_id} 发送的非HELLO消息,丢弃")
         return
     
     try:
@@ -158,9 +158,9 @@ def dispatch_message(msg_raw, self_id, self_ip):
             
         handle_block(msg_raw, self_id)
         
-        # 创建INV广播
-        inv_msg = create_inv(self_id, [msg["block_id"]])
-        gossip_message(self_id, json.dumps(inv_msg))
+        # # 创建INV广播
+        # inv_msg = create_inv(self_id, [msg["block_id"]])
+        # gossip_message(self_id, json.dumps(inv_msg))
 
 
     elif msg_type == "TX":
@@ -230,7 +230,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
         else:
             print(f"[{self_id}] 已拥有所有区块 from {sender_id}，无需请求")
 
-    elif msg_type == "GETBLOCK":
+    elif msg_type == "GET_BLOCK":
         
         # TODO: Extract the block IDs from the message.
         
@@ -266,6 +266,18 @@ def dispatch_message(msg_raw, self_id, self_ip):
                         print(f"[{self_id}] 无法获取区块 {bid[:8]}，已放弃...")
                         break
                 # 如果区块不在本地，尝试从其他节点获取
+
+                    if peer_flags[self_id].get("light", False):
+                        
+                        for peer_id, (ip, port) in known_peers.items():
+                            if peer_id == self_id or peer_id == sender_id: continue
+                            # relay_msg["target"] = peer_id
+                            print(f"[{self_id}] 轻节点请求区块 {bid[:8]}，转发给其他节点")
+                            enqueue_message(peer_id, ip, port, msg_raw)
+                        break
+                    
+                    # 如果是全节点，创建GETBLOCK请求
+
                     new_getblock = create_getblock(self_id, [bid])
                     for peer_id, (ip, port) in known_peers.items():
                         if peer_id == self_id or peer_id == sender_id: continue
@@ -312,6 +324,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
         with block_lock:
             current_chain = {h["hash"]: h for h in header_store}
             current_blocks = {b["block_id"]: b for b in received_blocks}
+            or_blocks = {b["block_id"]: b for b in orphan_blocks.values()}
 
         for hdr in msg["headers"]:
             prev_hash = hdr["prev_hash"]
@@ -335,6 +348,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
                 if hdr["hash"] not in current_chain
             ]
             header_store.extend(new_headers)
+            current_chain = {h["hash"]: h for h in header_store}
             print(f"[{self_id}] 节点添加 {len(new_headers)} 个新区块头")
 
 
@@ -343,7 +357,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
             with block_lock:
                 for hdr in msg["headers"]:
                     # 块头已存在但完整块缺失
-                    if hdr["hash"] in current_chain and hdr["hash"] not in current_blocks:
+                    if hdr["hash"] in current_chain and (hdr["hash"] not in current_blocks or hdr["hash"] not in or_blocks):
                         missing_block_ids.append(hdr["hash"])
 
             if missing_block_ids:

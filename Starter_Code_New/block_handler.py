@@ -9,6 +9,7 @@ from peer_discovery import known_peers, peer_config
 from outbox import  enqueue_message, gossip_message
 from utils import generate_message_id
 from peer_manager import record_offense
+from inv_message import  create_inv
 
 
 received_blocks = [] # The local blockchain. The blocks are added linearly at the end of the set.
@@ -68,24 +69,25 @@ def block_generation(self_id, MALICIOUS_MODE, interval=100):
                 time.sleep(interval)
                 continue
             
-            with block_lock:
-                header_store.append({
-                    'hash': block['block_id'],
-                    'timestamp': block['timestamp'],
-                    'tx_count': len(block['tx_list']),
-                    'prev_hash': block['prev_id']
-                })
+            # with block_lock:
+            #     header_store.append({
+            #         'hash': block['block_id'],
+            #         'timestamp': block['timestamp'],
+            #         'tx_count': len(block['tx_list']),
+            #         'prev_hash': block['prev_id']
+            #     })
 
 
+            handle_block(json.dumps(block), self_id)
 
             # 广播新区块
-            if 'block_id' in block:
-                inv_msg = create_inv(self_id, [block['block_id']])
-                gossip_message(self_id,json.dumps(inv_msg))
-                print(f"生成新区块 #{len(received_blocks)} | Hash: {block['block_id'][:16]}...")
+            # if 'block_id' in block:
+            inv_msg = create_inv(self_id, [block['block_id']])
+            gossip_message(self_id,json.dumps(inv_msg))
+            print(f"生成新区块 #{len(received_blocks)} | Hash: {block['block_id'][:16]}...")
 
           
-            handle_block(json.dumps(block), self_id)
+            
 
 
             time.sleep(interval)
@@ -163,22 +165,34 @@ def handle_block(msg, self_id):
             return
         #print(f"进到锁里了吗，真的进得去吗？")
         with block_lock:
-            #print(f'{threading.current_thread().name} 进入blocklock,有没有 {block["block_id"][:8]}啊啊啊')
+            
+            current_blocks = {b["block_id"]: b for b in received_blocks}
+
             # 重复检查
-            if any(b['block_id'] == block['block_id'] for b in received_blocks):
+            if any(b['block_id'] == block['block_id'] for b in received_blocks or orphan_blocks.get(block['prev_id'], [])):
+                print(f"重复区块: {block['block_id'][:8]}")
                 return
             # 主链连接检查
             if  block['prev_id'] == '0'*64 :
 
                 if not sender_id == self_id:
                     print(f"接收到由{sender_id}创建的新区块 | 前哈希: {block['prev_id'][:8]}...")
+                    # 创建INV广播
+                    inv_msg = create_inv(self_id, [block["block_id"]])
+                    gossip_message(self_id, json.dumps(inv_msg))
+
                 add_to_chain(block,self_id)
                 check_orphans(block['block_id'])
 
-            elif block['prev_id'] == received_blocks[-1]['block_id']:
+            
+            elif block['prev_id'] in current_blocks:
                  
                  if not sender_id == self_id:
                     print(f"接收到由{sender_id}创建的新区块 | 前哈希: {block['prev_id'][:8]}...")
+                    # 创建INV广播
+                    inv_msg = create_inv(self_id, [block["block_id"]])
+                    gossip_message(self_id, json.dumps(inv_msg))
+
                  add_to_chain(block,self_id)
                  check_orphans(block['block_id'])
 
@@ -222,7 +236,7 @@ def create_getblock(sender_id, requested_ids):
     # pass
     """构造区块请求消息"""
     return {
-        "type": "GETBLOCK",
+        "type": "GET_BLOCK",
         "sender": sender_id,
         "request_ids": requested_ids,
         "message_id": generate_message_id()

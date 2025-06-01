@@ -36,10 +36,15 @@ drop_stats = {
 
 priority_order = {
     "BLOCK": 1,
-    "TX": 2,
-    "PING": 3,
-    "PONG": 4,
-    "HELLO": 5
+    "TX": 1,
+    "PING": 2,
+    "PONG": 2,
+    "HELLO": 2,
+    "BLOCK_HEADERS": 2,
+    "INV": 2,
+    "GET_BLOCK_HEADERS": 1,
+    "GET_BLOCK": 1,
+    "RELAY": 2,
 }
 
 # Queues per peer and priority
@@ -132,15 +137,16 @@ def is_rate_limited(peer_id):
             peer_send_timestamps[peer_id].append(now)
             return False
 
-def classify_priority(message):
+def classify_priority(message_type):
     # TODO: Classify the priority of a message based on the message type.
     # pass
-    if message in PRIORITY_HIGH:
-        return 1
-    elif message in PRIORITY_MEDIUM:
-        return 2
-    else:
-        return 3  # 默认低优先级
+    return priority_order.get(message_type, 10)  # 默认低优先级为3
+    # if message in PRIORITY_HIGH:
+    #     return 1
+    # elif message in PRIORITY_MEDIUM:
+    #     return 2
+    # else:
+    #     return 3  # 默认低优先级
     
 
 def send_from_queue(self_id):

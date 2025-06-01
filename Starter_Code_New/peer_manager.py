@@ -58,7 +58,7 @@ def handle_pong(msg):
 
     # TODO: Update the transmission latenty between the peer and the sender (`rtt_tracker`).
     # pass
-    """处理PONG响应"""
+    # """处理PONG响应"""
     try:
         data = json.loads(msg)
         peer_id = data['sender']

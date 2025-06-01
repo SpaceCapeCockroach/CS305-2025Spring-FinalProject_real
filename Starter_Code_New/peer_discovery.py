@@ -123,7 +123,9 @@ def handle_hello_message(msg, self_id):
             print(f"[{self_id}]New peer discovered: {sender_id}@{ip}:{port}")
         
         # 添加中间节点到reachable_by
-        reachable_by.setdefault(sender_id, set()).add(relay)
+        if not peer_flags.get(relay, {}).get('nat', False) :
+            reachable_by.setdefault(sender_id, set()).add(relay)
+            
         if not is_reachable(self_id, sender_id):
             print(f"receievd HELLO from {sender_id} (unreachable directly: sender_nat={flags.get('nat', True)}, self_nat={peer_flags[self_id]['nat']})")
             print(f"But , Peer {self_id} can reach {sender_id} through {relay}")

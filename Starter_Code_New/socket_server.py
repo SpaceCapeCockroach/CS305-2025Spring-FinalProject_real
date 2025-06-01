@@ -33,18 +33,20 @@ def start_socket_server(self_id, self_ip, port):
             ).start()
 
     def handle_client(client_socket, self_id, self_ip):
+        buffer = b''  # 用于累积数据
         try:
             while True:  # ← 新增接收循环
                 data = client_socket.recv(RECV_BUFFER)
                 if not data:  # 客户端正常关闭连接
-                    print("Connection closed by client")
+                    print("Transmission by client completed ")
                     break
+                buffer += data
                 #print(f"raw_msg:{data}\n")
-                try:
-                    threading.Thread(target=dispatch_message,args=(data.decode(), self_id, self_ip), daemon=True).start()
-                    # dispatch_message(data.decode(), self_id, self_ip)
-                except Exception as e:
-                    print(f"Error handling client: {e}")
+            try:
+                if buffer:                    
+                    threading.Thread(target=dispatch_message,args=(buffer.decode(), self_id, self_ip), daemon=True).start()
+            except Exception as e:
+                print(f"Error handling client: {e}")
         except ConnectionResetError:
             print("Client forcibly closed connection")
         except Exception as e:
