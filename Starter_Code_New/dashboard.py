@@ -29,15 +29,99 @@ def home():
 def dashboard():
     """仪表盘页面"""
     return render_template('dashboard.html')
+# @app.route('/blocks')
+# def blocks():
+#     # TODO: display the blocks in the local blockchain.
+#     #pass
+#     # 展示本地区块链中的区块
+#     if blockchain_data_ref is None:
+#         return jsonify({"error": "No blockchain data"}), 500
+#     blocks = [block.to_dict() if hasattr(block, "to_dict") else str(block) for block in blockchain_data_ref]
+#     return jsonify(blocks)
+# @app.route('/blocks')
+# def blocks():
+#     # TODO: display the blocks in the local blockchain.
+#     #pass
+#     # 展示本地区块链中的区块
+#     if blockchain_data_ref is None:
+#         return jsonify({"error": "No blockchain data"}), 500
+#     blocks = [block.to_dict() if hasattr(block, "to_dict") else str(block) for block in blockchain_data_ref]
+#     return jsonify(blocks)
 @app.route('/blocks')
 def blocks():
-    # TODO: display the blocks in the local blockchain.
-    #pass
-    # 展示本地区块链中的区块
     if blockchain_data_ref is None:
         return jsonify({"error": "No blockchain data"}), 500
-    blocks = [block.to_dict() if hasattr(block, "to_dict") else str(block) for block in blockchain_data_ref]
-    return jsonify(blocks)
+
+    # 1. 转换区块为字典格式
+    def block_to_dict(block):
+        if hasattr(block, "to_dict"):
+            return block.to_dict()
+        elif isinstance(block, dict):
+            return block
+        else:
+            return str(block)  # 回退方案
+
+    blocks = [block_to_dict(block) for block in blockchain_data_ref]
+
+    # 2. 手动实现父-子关系映射
+    parent_child_map = {}  
+    block_dict = {}
+    
+    for block in blocks:
+        # 确保区块是字典格式
+        if not isinstance(block, dict):
+            continue
+            
+        block_id = block.get("block_id")
+        prev_id = block.get("prev_id")
+        
+        # 填充区块字典
+        if block_id is not None:
+            block_dict[block_id] = block
+        
+        # 处理父-子关系映射
+        if prev_id is not None:
+            # 使用setdefault确保键存在
+            if prev_id not in parent_child_map:
+                parent_child_map[prev_id] = []
+            parent_child_map[prev_id].append(block_id)
+
+    # 3. 找出所有根区块 (prev_id为空或不存在)
+    root_blocks = [
+        block for block in blocks
+        if block.get("prev_id") in (None, "", 64*'0')  # 涵盖各种空值情况
+    ]
+
+    # 4. 递归构建树状结构
+    def build_tree(current_id):
+        block = block_dict.get(current_id)
+        if not block:
+            return None
+        
+        # 创建当前区块的树节点
+        node = {
+            "block": block,
+            "children": []
+        }
+        
+        # 添加子区块（如果存在）
+        for child_id in parent_child_map.get(current_id, []):
+            child_node = build_tree(child_id)
+            if child_node:
+                node["children"].append(child_node)
+                
+        return node
+
+    # 从每个根节点构建树
+    tree_data = []
+    for root_block in root_blocks:
+        root_id = root_block.get("block_id")
+        if root_id:
+            tree = build_tree(root_id)
+            if tree:
+                tree_data.append(tree)
+
+    return jsonify(tree_data)
 
 
 @app.route('/peers')
@@ -94,7 +178,7 @@ def capacity():
     return jsonify({"capacity": capacity})
 
 @app.route('/orphans')
-def orphan_blocks():
+def display_orphan_blocks():
     # TODO: display the orphaned blocks.
     #pass
     orphan_blocks_info = []
