@@ -46,7 +46,7 @@ def request_block_sync(self_id):
                     peer_id,ip, port,
                     json.dumps(get_block_headers_msg),
                 )
-        time.sleep(30)  # 每30秒请求一次区块头信息
+        time.sleep(20)  # 每30秒请求一次区块头信息
 
 def block_generation(self_id, MALICIOUS_MODE, interval=100):
     from inv_message import create_inv
