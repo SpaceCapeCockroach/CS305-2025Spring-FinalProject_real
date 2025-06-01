@@ -76,12 +76,17 @@ def block_generation(self_id, MALICIOUS_MODE, interval=100):
                     'prev_hash': block['prev_id']
                 })
 
+
+
             # 广播新区块
             if 'block_id' in block:
                 inv_msg = create_inv(self_id, [block['block_id']])
                 gossip_message(self_id,json.dumps(inv_msg))
                 print(f"生成新区块 #{len(received_blocks)} | Hash: {block['block_id'][:16]}...")
+
+            clear_pool()
             handle_block(json.dumps(block), self_id)
+
             time.sleep(interval)
     threading.Thread(target=mine, daemon=True).start()
 
@@ -192,7 +197,7 @@ def add_to_chain(block,self_id):
             'tx_count': len(block['tx_list']),
             'prev_hash': block['prev_id']
         })
-        clear_pool()
+        # clear_pool()
         print(f"新区块确认 | 高度: {len(received_blocks)}")
 
 def check_orphans(new_hash):

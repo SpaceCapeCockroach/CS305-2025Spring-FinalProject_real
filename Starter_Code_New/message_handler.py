@@ -321,6 +321,17 @@ def dispatch_message(msg_raw, self_id, self_ip):
         # else:
         #     # 全节点检查完整性
         #     pass
+
+        with block_lock:
+            # 去重检查
+            new_headers = [
+                hdr for hdr in msg["headers"]
+                if hdr["hash"] not in current_chain
+            ]
+            header_store.extend(new_headers)
+            print(f"[{self_id}] 轻节点添加 {len(new_headers)} 个新区块头")
+
+
         if not is_light_node:
             missing_block_ids = []
             with block_lock:
@@ -336,14 +347,6 @@ def dispatch_message(msg_raw, self_id, self_ip):
             else:
                 print(f"[{self_id}] 全节点已拥有全部区块，无需处理")
 
-        with block_lock:
-            # 去重检查
-            new_headers = [
-                hdr for hdr in msg["headers"]
-                if hdr["hash"] not in current_chain
-            ]
-            header_store.extend(new_headers)
-            print(f"[{self_id}] 轻节点添加 {len(new_headers)} 个新区块头")
 
     else:
         print(f"[{self_id}] Unknown message type: {msg_type}", flush=True)
