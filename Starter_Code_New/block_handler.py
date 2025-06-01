@@ -84,7 +84,7 @@ def block_generation(self_id, MALICIOUS_MODE, interval=100):
                 gossip_message(self_id,json.dumps(inv_msg))
                 print(f"生成新区块 #{len(received_blocks)} | Hash: {block['block_id'][:16]}...")
 
-            clear_pool()
+          
             handle_block(json.dumps(block), self_id)
 
             time.sleep(interval)
@@ -106,7 +106,7 @@ def create_dummy_block(peer_id, MALICIOUS_MODE):
     with block_lock:
         prev_hash = received_blocks[-1]['block_id'] if received_blocks else '0'*64
         transactions = get_recent_transactions()
-        
+        clear_pool()
     block = {
         "type": "BLOCK",
         "sender": peer_id,

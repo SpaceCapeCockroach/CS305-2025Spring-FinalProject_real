@@ -227,13 +227,7 @@
         .btn:hover {
             background: var(--highlight);
         }
-         .block-tree {
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-
+        
         .block-node {
             margin: 10px 0;
         }
@@ -253,11 +247,14 @@
         .toggle-icon {
             width: 20px;
             height: 20px;
-display: flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 10px;
             color: var(--highlight);
+        }
+        .toggle-icon i { 
+             color: var(--highlight);
         }
 
         .block-indicator {
@@ -266,23 +263,22 @@ display: flex;
             border-radius: 50%;
             background: var(--highlight);
             margin-right: 10px;
+            flex-shrink: 0;
         }
 
-        .block-info {
-            flex: 1;
-        }
-
-        .block-id {
+        .block-id { 
             font-weight: 600;
             font-size: 14px;
         }
-
-        .block-hash {
+        
+        .block-info .block-hash { 
             font-size: 12px;
             color: var(--text-secondary);
             font-family: monospace;
             margin-top: 3px;
+            word-break: break-all;
         }
+
 
         .children-container {
             margin-left: 30px;
@@ -306,6 +302,7 @@ display: flex;
         .detail-label {
             width: 100px;
             color: var(--text-secondary);
+            flex-shrink: 0;
         }
 
         .detail-value {
@@ -318,7 +315,7 @@ display: flex;
             max-height: 150px;
             overflow-y: auto;
             padding: 5px;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.1); 
             border-radius: 6px;
         }
 
@@ -335,7 +332,7 @@ display: flex;
             margin-bottom: 0;
         }
 
-        .search-box {
+        .search-box { 
             display: flex;
             margin-bottom: 15px;
         }
@@ -348,6 +345,10 @@ display: flex;
             background: rgba(255, 255, 255, 0.07);
             color: var(--text);
             font-size: 14px;
+            outline: none;
+        }
+         .search-box input::placeholder {
+            color: var(--text-secondary);
         }
 
         .search-box button {
@@ -382,6 +383,7 @@ display: flex;
             background: rgba(255, 255, 255, 0.05);
             color: var(--text-secondary);
             font-weight: 500;
+            border-bottom: 1px solid var(--border); 
         }
         
         td {
@@ -415,7 +417,15 @@ display: flex;
             background: rgba(251, 191, 36, 0.2);
             color: var(--warning);
         }
-        
+         .status-warning { /* For NAT status, etc. */
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--warning);
+        }
+        .status-success { /* For NAT status, etc. */
+             background: rgba(74, 222, 128, 0.2);
+            color: var(--success);
+        }
+
         .chart-container {
             height: 300px;
             margin-top: 20px;
@@ -458,6 +468,8 @@ display: flex;
             .sidebar {
                 width: 100%;
                 height: auto;
+                border-right: none; 
+                border-bottom: 1px solid var(--border); 
             }
             
             .stats-container {
@@ -465,12 +477,13 @@ display: flex;
             }
         }
         
-        .search-bar {
+        .search-bar { 
             display: flex;
             background: rgba(255, 255, 255, 0.07);
             border-radius: 8px;
             padding: 8px 15px;
             width: 300px;
+            align-items: center;
         }
         
         .search-bar input {
@@ -481,9 +494,13 @@ display: flex;
             padding: 5px 10px;
             outline: none;
         }
+         .search-bar input::placeholder {
+            color: var(--text-secondary);
+        }
         
         .search-bar i {
             color: var(--text-secondary);
+            margin-right: 8px; 
         }
         
         .progress-bar {
@@ -498,9 +515,10 @@ display: flex;
             height: 100%;
             background: var(--highlight);
             border-radius: 4px;
+            transition: width 0.5s ease-in-out; 
         }
         
-        .block-row {
+        .block-row { 
             display: flex;
             align-items: center;
             padding: 12px 0;
@@ -511,7 +529,7 @@ display: flex;
             border-bottom: none;
         }
         
-        .block-icon {
+        .block-icon { 
             width: 40px;
             height: 40px;
             background: var(--accent);
@@ -522,16 +540,20 @@ display: flex;
             margin-right: 15px;
             flex-shrink: 0;
         }
+        .block-icon i {
+            color: var(--text); 
+        }
         
-        .block-info {
+        .block-info { 
             flex: 1;
         }
         
-        .block-hash {
+        .block-hash { 
             font-size: 14px;
             color: var(--text-secondary);
             font-family: monospace;
             word-break: break-all;
+            margin-top: 2px; 
         }
         
         .latency-indicator {
@@ -576,15 +598,16 @@ display: flex;
             color: #3b82f6;
         }
         
-        .loading {
+        .loading { 
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
+            width: 16px; 
+            height: 16px;
+            border: 2px solid rgba(255,255,255,.3);
             border-radius: 50%;
             border-top-color: var(--highlight);
             animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
+            margin-right: 8px; 
+            vertical-align: middle; 
         }
         
         @keyframes spin {
@@ -594,6 +617,10 @@ display: flex;
         .refresh-btn {
             display: flex;
             align-items: center;
+        }
+
+        .loading-block .block-row {
+             border-bottom: none;
         }
     </style>
 </head>
@@ -659,474 +686,580 @@ display: flex;
         
         <!-- 主内容区 -->
         <div class="main-content">
-              <div id="blocks-page" style="display: none;"></div>
-                    <div class="header">
-                        <h2>网络总览</h2>
-                        <div class="search-bar">
-                            <i class="fas fa-search"></i>
-                            <input type="text" placeholder="搜索区块、交易或节点..." id="search-input">
+            <!-- 总览页面 -->
+            <div id="overview-page" data-page="overview">
+                <div class="header">
+                    <h2>网络总览</h2>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="搜索区块、交易或节点..." id="search-input">
+                    </div>
+                </div>
+                
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="active-peers">0</div>
+                                <div class="stat-label">活跃节点</div>
+                            </div>
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="peers-progress" style="width: 0%"></div>
                         </div>
                     </div>
-                <div class="card">
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="block-count">0</div>
+                                <div class="stat-label">区块高度</div>
+                            </div>
+                            <i class="fas fa-cubes"></i>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="blocks-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="pending-txs">0</div>
+                                <div class="stat-label">待处理交易</div>
+                            </div>
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="txs-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="network-throughput">0 MB/s</div>
+                                <div class="stat-label">网络吞吐量</div>
+                            </div>
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="throughput-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid-2">
+                    <div class="card">
                         <div class="card-header">
-                            <div class="card-title">区块链视图</div>
-                            <button class="btn" id="refresh-blocks-tree">刷新</button>
+                            <div class="card-title">最新区块</div>
+                            <button class="btn" id="refresh-blocks">刷新</button>
                         </div>
-
-                        <div class="search-box">
-                            <input type="text" id="block-search" placeholder="输入区块ID或交易ID...">
-                            <button id="search-block-btn">搜索</button>
-                        </div>
-
-                        <div id="blocks-tree-container">
-                            <div class="loading-block">
-                                <div class="block-row">
-                                    <div class="block-icon">
-                                        <i class="fas fa-cube"></i>
-                                    </div>
-                                    <div class="block-info">
-                                        <div>加载区块树结构中...</div>
-                                    </div>
+                        <div class="block-list" id="blocks-list">
+                            <div class="block-row">
+                                <div class="block-icon">
+                                    <i class="fas fa-cube"></i>
+                                </div>
+                                <div class="block-info">
+                                    <div>加载区块数据中...</div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">节点状态</div>
+                            <button class="btn refresh-btn" id="refresh-peers">
+                                <span class="loading" style="display: none;"></span>刷新
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                       <th>节点ID</th>
+                                       <th>IP地址</th>
+                                       <th>端口</th>
+                                       <th>状态</th>
+                                       <th>延迟</th>
+                                       <th>类型</th>
+                                       <th>NAT状态</th>
+                                       <th>本地网络</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="peers-table">
+                                    <tr>
+                                        <td colspan="8" style="text-align: center;">加载节点数据中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">网络性能</div>
+                        <div>
+                            <button class="btn active" id="latency-btn" style="margin-right: 10px;">延迟</button>
+                            <button class="btn" id="throughput-btn">吞吐量</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="networkChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">近期交易</div>
+                            <button class="btn" id="refresh-txs">刷新</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>交易ID</th>
+                                    <th>金额</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-table">
+                                <tr>
+                                    <td colspan="3" style="text-align: center;">加载交易数据中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">待发送消息</div>
+                            <button class="btn" id="refresh-outbox">刷新</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>目标节点</th>
+                                    <th>优先级</th>
+                                    <th>消息数</th>
+                                </tr>
+                            </thead>
+                            <tbody id="outbox-table">
+                                <tr>
+                                    <td colspan="3" style="text-align: center;">加载消息队列数据中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-            <!-- 统计卡片 -->
-            <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-value" id="active-peers">0</div>
-                            <div class="stat-label">活跃节点</div>
-                        </div>
-                        <i class="fas fa-server"></i>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress" id="peers-progress" style="width: 0%"></div>
-                    </div>
+            <!-- 区块浏览器页面 -->
+            <div id="blocks-page" style="display: none;" data-page="blocks">
+                <div class="header">
+                    <h2>区块浏览器</h2>
                 </div>
-                
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-value" id="block-count">0</div>
-                            <div class="stat-label">区块高度</div>
-                        </div>
-                        <i class="fas fa-cubes"></i>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress" id="blocks-progress" style="width: 0%"></div>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-value" id="pending-txs">0</div>
-                            <div class="stat-label">待处理交易</div>
-                        </div>
-                        <i class="fas fa-exchange-alt"></i>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress" id="txs-progress" style="width: 0%"></div>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-value" id="network-throughput">0 MB/s</div>
-                            <div class="stat-label">网络吞吐量</div>
-                        </div>
-                        <i class="fas fa-tachometer-alt"></i>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress" id="throughput-progress" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="grid-2">
-                <!-- 区块卡片 -->
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">最新区块</div>
-                        <button class="btn" id="refresh-blocks">刷新</button>
+                        <div class="card-title">区块链视图</div>
+                        <button class="btn" id="refresh-blocks-tree">刷新</button>
                     </div>
-                    <div class="block-list" id="blocks-list">
-                        <div class="block-row">
-                            <div class="block-icon">
-                                <i class="fas fa-cube"></i>
-                            </div>
-                            <div class="block-info">
-                                <div>加载区块数据中...</div>
+
+                    <div class="search-box">
+                        <input type="text" id="block-search-tree" placeholder="输入区块ID或交易ID...">
+                        <button id="search-block-btn-tree">搜索</button>
+                    </div>
+
+                    <div id="blocks-tree-container">
+                        <div class="loading-block">
+                            <div class="block-row">
+                                <div class="block-icon">
+                                    <i class="fas fa-cube"></i>
+                                </div>
+                                <div class="block-info">
+                                    <div>加载区块树结构中...</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- 节点卡片 -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">节点状态</div>
-                        <button class="btn refresh-btn" id="refresh-peers">
-                            <span class="loading"></span>刷新
-                        </button>
-                    </div>
-                    <div class="table-container"></div>
-                    <table>
-                        <thead>
-                            <tr>
-                               <th>节点ID</th>
-                               <th>IP地址</th>
-                               <th>端口</th>
-                               <th>状态</th>
-                               <th>延迟</th>
-                               <th>类型</th>
-                               <th>NAT状态</th>
-                               <th>本地网络</th>
-                            </tr>
-                        </thead>
-                        <tbody id="peers-table">
-                            <tr>
-                                <td colspan="4" style="text-align: center;">加载节点数据中...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
-            
-            <!-- 网络性能卡片 -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">网络性能</div>
-                    <div>
-                        <button class="btn active" id="latency-btn" style="margin-right: 10px;">延迟</button>
-                        <button class="btn" id="throughput-btn">吞吐量</button>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="networkChart"></canvas>
-                </div>
+
+            <!-- 其他页面占位符 -->
+            <div id="peers-page" style="display: none;" data-page="peers">
+                 <div class="header"><h2>节点监控</h2></div>
+                 <div class="card"><p>节点监控内容将显示在这里。</p></div>
             </div>
-            
-            <div class="grid-2">
-                <!-- 交易卡片 -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">近期交易</div>
-                        <button class="btn" id="refresh-txs">刷新</button>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>交易ID</th>
-                                <th>金额</th>
-                                <th>状态</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactions-table">
-                            <tr>
-                                <td colspan="3" style="text-align: center;">加载交易数据中...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- 消息队列卡片 -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">待发送消息</div>
-                        <button class="btn" id="refresh-outbox">刷新</button>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>目标节点</th>
-                                <th>优先级</th>
-                                <th>消息数</th>
-                            </tr>
-                        </thead>
-                        <tbody id="outbox-table">
-                            <tr>
-                                <td colspan="3" style="text-align: center;">加载消息队列数据中...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div id="transactions-page" style="display: none;" data-page="transactions">
+                <div class="header"><h2>交易池</h2></div>
+                <div class="card"><p>交易池内容将显示在这里。</p></div>
+            </div>
+            <div id="performance-page" style="display: none;" data-page="performance">
+                <div class="header"><h2>网络性能</h2></div>
+                <div class="card"><p>网络性能图表和数据将显示在这里。</p></div>
+            </div>
+            <div id="outbox-page" style="display: none;" data-page="outbox">
+                <div class="header"><h2>消息队列</h2></div>
+                <div class="card"><p>消息队列内容将显示在这里。</p></div>
+            </div>
+            <div id="settings-page" style="display: none;" data-page="settings">
+                <div class="header"><h2>设置</h2></div>
+                <div class="card"><p>配置设置将显示在这里。</p></div>
             </div>
         </div>
     </div>
 
     <script>
-        // 全局变量
-        let peerId = "0x" + Math.random().toString(16).substr(2, 8);
+        // Global variables
+        let peerId = "0x" + Math.random().toString(16).substr(2, 12);
         let startTime = Date.now();
         let networkChart;
         let chartMode = 'latency'; // 'latency' or 'throughput'
-        let latencyData = [];
-        let throughputData = [];
-        
+        let latencyDataPoints = []; 
+        let throughputDataPoints = [];
+
         // DOM元素
         const elements = {
             nodeId: document.getElementById('node-id'),
-            blockHeight: document.getElementById('block-height'),
+            blockHeightSysInfo: document.getElementById('block-height'), 
             uptime: document.getElementById('uptime'),
+            
             activePeers: document.getElementById('active-peers'),
-            blockCount: document.getElementById('block-count'),
+            blockCountStat: document.getElementById('block-count'), 
             pendingTxs: document.getElementById('pending-txs'),
             networkThroughput: document.getElementById('network-throughput'),
             peersProgress: document.getElementById('peers-progress'),
             blocksProgress: document.getElementById('blocks-progress'),
             txsProgress: document.getElementById('txs-progress'),
             throughputProgress: document.getElementById('throughput-progress'),
+            
             blocksList: document.getElementById('blocks-list'),
             peersTable: document.getElementById('peers-table'),
             transactionsTable: document.getElementById('transactions-table'),
             outboxTable: document.getElementById('outbox-table'),
+            
             refreshBlocksBtn: document.getElementById('refresh-blocks'),
             refreshPeersBtn: document.getElementById('refresh-peers'),
             refreshTxsBtn: document.getElementById('refresh-txs'),
             refreshOutboxBtn: document.getElementById('refresh-outbox'),
+            refreshBlocksTreeBtn: document.getElementById('refresh-blocks-tree'),
+            
             latencyBtn: document.getElementById('latency-btn'),
-            throughputBtn: document.getElementById('throughput-btn')
+            throughputBtn: document.getElementById('throughput-btn'),
+
+            overviewPage: document.getElementById('overview-page'),
+            blocksPage: document.getElementById('blocks-page'),
+            peersPage: document.getElementById('peers-page'),
+            transactionsPage: document.getElementById('transactions-page'),
+            performancePage: document.getElementById('performance-page'),
+            outboxPage: document.getElementById('outbox-page'),
+            settingsPage: document.getElementById('settings-page'),
+            
+            blocksTreeContainer: document.getElementById('blocks-tree-container')
         };
         
-        // 初始化函数
         function initDashboard() {
-            // 设置节点ID
             elements.nodeId.textContent = peerId.substr(0, 6) + '...' + peerId.substr(-4);
-            
-            // 更新运行时间
             updateUptime();
-            setInterval(updateUptime, 1000);
-            
-            // 初始化图表
+            setInterval(updateUptime, 60000); 
+
             initChart();
-            
-            // 加载初始数据
-            fetchDashboardData();
-            
-            // 设置刷新按钮事件
-            elements.refreshBlocksBtn.addEventListener('click', fetchBlocks);
+            fetchDashboardData(); 
+            setupPageNavigation(); 
+
+            elements.refreshBlocksBtn.addEventListener('click', fetchLatestBlocks);
             elements.refreshPeersBtn.addEventListener('click', fetchPeers);
             elements.refreshTxsBtn.addEventListener('click', fetchTransactions);
             elements.refreshOutboxBtn.addEventListener('click', fetchOutbox);
+            if(elements.refreshBlocksTreeBtn) { 
+                elements.refreshBlocksTreeBtn.addEventListener('click', fetchBlocksTree);
+            }
             
-            // 设置图表模式切换
             elements.latencyBtn.addEventListener('click', () => setChartMode('latency'));
             elements.throughputBtn.addEventListener('click', () => setChartMode('throughput'));
             
-            // 设置导航项点击事件
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
-                    // 这里可以添加切换不同视图的逻辑
-                });
-            });
-            
-            // 设置搜索功能
             document.getElementById('search-input').addEventListener('keyup', function(e) {
                 if (e.key === 'Enter') {
                     const query = this.value.trim();
-                    if (query) {
-                        alert(`搜索: ${query}`);
-                        // 实际项目中这里会调用搜索API
-                    }
+                    if (query) alert(`全局搜索: ${query}`);
                 }
             });
+            const blockTreeSearchBtn = document.getElementById('search-block-btn-tree');
+            const blockTreeSearchInput = document.getElementById('block-search-tree');
+            if (blockTreeSearchBtn && blockTreeSearchInput) {
+                blockTreeSearchBtn.addEventListener('click', () => {
+                    const query = blockTreeSearchInput.value.trim();
+                    if (query) alert(`区块树搜索: ${query}`); // Implement actual search logic
+                });
+                 blockTreeSearchInput.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') {
+                         const query = blockTreeSearchInput.value.trim();
+                         if (query) alert(`区块树搜索: ${query}`); // Implement actual search logic
+                    }
+                });
+            }
+            setInterval(fetchDashboardData, 30000); 
         }
         
-        // 更新运行时间
         function updateUptime() {
             const uptimeMs = Date.now() - startTime;
             const days = Math.floor(uptimeMs / (1000 * 60 * 60 * 24));
             const hours = Math.floor((uptimeMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            elements.uptime.textContent = `${days}天 ${hours}小时`;
+            const minutes = Math.floor((uptimeMs % (1000 * 60 * 60)) / (1000 * 60));
+            elements.uptime.textContent = `${days}天 ${hours}小时 ${minutes}分钟`;
         }
         
-        // 初始化图表
         function initChart() {
             const ctx = document.getElementById('networkChart').getContext('2d');
+            const rootStyles = getComputedStyle(document.documentElement);
+
             networkChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: Array(12).fill().map((_, i) => `${i*2}:00`),
+                    labels: Array(12).fill("").map((_, i) => { 
+                        const d = new Date(Date.now() - (11-i) * 30000); 
+                        return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+                    }),
                     datasets: [{
                         label: '平均延迟 (ms)',
                         data: [],
-                        borderColor: '#e94560',
-                        backgroundColor: 'rgba(233, 69, 96, 0.1)',
+                        borderColor: rootStyles.getPropertyValue('--highlight').trim(),
+                        backgroundColor: 'rgba(233, 69, 96, 0.1)', // Fallback, or derive from --highlight
                         tension: 0.4,
-                        fill: true
+                        fill: true,
+                        pointRadius: 3,
+                        pointBackgroundColor: rootStyles.getPropertyValue('--highlight').trim()
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#f1f1f1'
-                            }
-                        }
-                    },
+                    plugins: { legend: { labels: { color: rootStyles.getPropertyValue('--text').trim() } } },
                     scales: {
-                        x: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: '#b0b0b0'
-                            }
+                        x: { 
+                            grid: { color: rootStyles.getPropertyValue('--border').trim() }, 
+                            ticks: { color: rootStyles.getPropertyValue('--text-secondary').trim(), maxRotation: 30, minRotation: 30 } 
                         },
-                        y: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            ticks: {
-                                color: '#b0b0b0'
-                            },
-                            beginAtZero: true
+                        y: { 
+                            grid: { color: rootStyles.getPropertyValue('--border').trim() }, 
+                            ticks: { color: rootStyles.getPropertyValue('--text-secondary').trim() }, 
+                            beginAtZero: true 
                         }
                     }
                 }
             });
         }
         
-        // 设置图表模式
         function setChartMode(mode) {
             chartMode = mode;
-            
-            // 更新按钮状态
             elements.latencyBtn.classList.toggle('active', mode === 'latency');
             elements.throughputBtn.classList.toggle('active', mode === 'throughput');
-            
-            // 更新图表数据
-            updateChart();
+            updateChartData(true); 
         }
         
-        // 更新图表数据
-        function updateChart() {
+        function updateChartData(forceUpdate = false) {
             if (!networkChart) return;
-            
-            if (chartMode === 'latency') {
-                networkChart.data.datasets = [{
-                    label: '平均延迟 (ms)',
-                    data: latencyData,
-                    borderColor: '#e94560',
-                    backgroundColor: 'rgba(233, 69, 96, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }];
-            } else {
-                networkChart.data.datasets = [{
-                    label: '吞吐量 (MB/s)',
-                    data: throughputData,
-                    borderColor: '#4ade80',
-                    backgroundColor: 'rgba(74, 222, 128, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }];
-            }
-            
-            networkChart.update();
-        }
-        
-        // 获取仪表盘数据
-        async function fetchDashboardData() {
-            try {
-                // 获取节点数据
-                const peersResponse = await fetch('/peers');
-                const peersData = await peersResponse.json();
-                updatePeers(peersData);
-                
-                // 获取区块数据
-                const blocksResponse = await fetch('/blocks');
-                const blocksData = await blocksResponse.json();
-                updateBlocks(blocksData);
-                
-                // 获取交易数据
-                const txsResponse = await fetch('/transactions');
-                const txsData = await txsResponse.json();
-                updateTransactions(txsData);
-                
-                // 获取消息队列数据
-                const outboxResponse = await fetch('/outbox');
-                const outboxData = await outboxResponse.json();
-                updateOutbox(outboxData);
-                
-                // 获取延迟数据
-                const latencyResponse = await fetch('/latency');
-                const latencyDataResponse = await latencyResponse.json();
-                updateLatency(latencyDataResponse);
-                
-                // 获取容量数据
-                const capacityResponse = await fetch('/capacity');
-                const capacityData = await capacityResponse.json();
-                updateCapacity(capacityData);
-                
-            } catch (error) {
-                console.error('获取数据失败:', error);
-            }
-        }
-        
-        // 获取区块数据
+            const rootStyles = getComputedStyle(document.documentElement);
 
-        // 新增区块树渲染功能
-        function renderBlockTree(data, container) {
-            if (!data || data.length === 0) {
-                container.innerHTML = '<div class="empty-message">区块链为空</div>';
+            const now = new Date();
+            const newLabel = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+
+            if (networkChart.data.labels.length >= 12) {
+                networkChart.data.labels.shift();
+            }
+            networkChart.data.labels.push(newLabel);
+
+            if (chartMode === 'latency') {
+                const avgLatency = latencyDataPoints.length > 0 ? latencyDataPoints.reduce((a,b)=>a+b,0) / latencyDataPoints.length : 0;
+                if (networkChart.data.datasets[0].data.length >= 12) {
+                    networkChart.data.datasets[0].data.shift();
+                }
+                networkChart.data.datasets[0].data.push(avgLatency);
+                networkChart.data.datasets[0].label = '平均延迟 (ms)';
+                networkChart.data.datasets[0].borderColor = rootStyles.getPropertyValue('--highlight').trim();
+                networkChart.data.datasets[0].backgroundColor = 'rgba(233, 69, 96, 0.1)';
+                networkChart.data.datasets[0].pointBackgroundColor = rootStyles.getPropertyValue('--highlight').trim();
+                latencyDataPoints = []; 
+            } else { 
+                const avgThroughput = throughputDataPoints.length > 0 ? throughputDataPoints.reduce((a,b)=>a+b,0) / throughputDataPoints.length : 0;
+                 if (networkChart.data.datasets[0].data.length >= 12) {
+                    networkChart.data.datasets[0].data.shift();
+                }
+                networkChart.data.datasets[0].data.push(avgThroughput);
+                networkChart.data.datasets[0].label = '吞吐量 (MB/s)';
+                networkChart.data.datasets[0].borderColor = rootStyles.getPropertyValue('--success').trim();
+                networkChart.data.datasets[0].backgroundColor = 'rgba(74, 222, 128, 0.1)';
+                networkChart.data.datasets[0].pointBackgroundColor = rootStyles.getPropertyValue('--success').trim();
+                throughputDataPoints = []; 
+            }
+            networkChart.update('none'); 
+        }
+
+        async function fetchDashboardData() {
+            fetchPeers();
+            fetchLatestBlocks();
+            fetchTransactions();
+            fetchOutbox();
+            fetchNetworkPerformanceData(); 
+        }
+
+        async function fetchNetworkPerformanceData() {
+            try {
+                const [latencyRes, capacityRes] = await Promise.all([
+                    fetch('/latency'),
+                    fetch('/capacity')
+                ]);
+                if (latencyRes.ok) {
+                    const data = await latencyRes.json();
+                    data.forEach(item => latencyDataPoints.push(item.latency_ms));
+                } else {
+                    console.warn(`Failed to fetch latency: ${latencyRes.status}`);
+                }
+                if (capacityRes.ok) {
+                    const data = await capacityRes.json();
+                    throughputDataPoints.push(data.capacity); 
+                    elements.networkThroughput.textContent = `${data.capacity.toFixed(1)} MB/s`;
+                    elements.throughputProgress.style.width = `${Math.min(100, data.capacity / 50 * 100)}%`;
+                } else {
+                     console.warn(`Failed to fetch capacity: ${capacityRes.status}`);
+                }
+                updateChartData(); 
+            } catch (error) {
+                console.error('获取网络性能数据失败:', error);
+            }
+        }
+        
+        function setupPageNavigation() {
+            const pageElements = {
+                overview: elements.overviewPage,
+                blocks: elements.blocksPage,
+                peers: elements.peersPage,
+                transactions: elements.transactionsPage,
+                performance: elements.performancePage,
+                outbox: elements.outboxPage,
+                settings: elements.settingsPage
+            };
+
+            Object.values(pageElements).forEach(page => {
+                if (page) page.style.display = 'none';
+            });
+            if (pageElements.overview) {
+                pageElements.overview.style.display = 'block';
+                document.querySelector('.nav-item[data-section="overview"]').classList.add('active');
+                document.querySelector('.main-content .header h2').textContent = "网络总览";
+
+
+            } else {
+                console.error("Overview page element not found!");
+            }
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    Object.values(pageElements).forEach(page => {
+                        if (page) page.style.display = 'none';
+                    });
+                    
+                    const currentPage = pageElements[section];
+                    if (currentPage) {
+                        currentPage.style.display = 'block';
+                        // Update header title based on current page
+                        const sectionTitle = this.querySelector('span').textContent;
+                        document.querySelector('.main-content .header h2').textContent = sectionTitle;
+
+
+                        if (section === 'blocks') {
+                            if (elements.blocksTreeContainer) {
+                                fetchBlocksTree();
+                            } else {
+                                console.error("Block tree container not found for section 'blocks'");
+                            }
+                        }
+                    } else {
+                        console.warn(`Page element for section '${section}' not found.`);
+                    }
+                });
+            });
+        }
+
+        async function fetchBlocksTree() { // For Block Explorer Page
+            const container = elements.blocksTreeContainer;
+            if (!container) {
+                console.error("Blocks tree container not found in DOM for fetchBlocksTree.");
                 return;
             }
+            container.innerHTML = `<div class="loading-block">
+                                    <div class="block-row">
+                                        <div class="block-icon"><i class="fas fa-cube"></i></div>
+                                        <div class="block-info"><div>加载区块树结构中...</div></div>
+                                    </div>
+                                  </div>`;
+            try {
+                const response = await fetch('/blocks'); 
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+                const data = await response.json();
+                renderBlockTree(data, container);
+            } catch (error) {
+                console.error('获取区块树失败:', error);
+                if (container) {
+                    container.innerHTML = `<div class="empty-message">无法加载区块数据. Error: ${error.message}</div>`;
+                }
+            }
+        }
+
+        function renderBlockTree(data, container) { // For Block Explorer Page
+            if (!data || (Array.isArray(data) && data.length === 0)) {
+                container.innerHTML = '<div class="empty-message">区块链为空或无数据返回</div>';
+                return;
+            }
+            container.innerHTML = ''; 
             
-            container.innerHTML = '';
-            
-            // 递归渲染区块
             function renderNode(node, parentElement, level) {
                 const blockNode = document.createElement('div');
                 blockNode.className = 'block-node';
                 
-                // 区块头部
                 const blockHeader = document.createElement('div');
                 blockHeader.className = 'block-header';
                 blockNode.appendChild(blockHeader);
                 
-                // 切换图标
                 const toggleIcon = document.createElement('div');
                 toggleIcon.className = 'toggle-icon';
-                toggleIcon.innerHTML = node.children && node.children.length ? '<i class="fas fa-minus"></i>' : '•';
                 blockHeader.appendChild(toggleIcon);
                 
-                // 区块指示器
                 const indicator = document.createElement('div');
                 indicator.className = 'block-indicator';
                 blockHeader.appendChild(indicator);
                 
-                // 区块信息
                 const blockInfo = document.createElement('div');
                 blockInfo.className = 'block-info';
                 blockHeader.appendChild(blockInfo);
                 
-                // 区块ID
                 const blockId = document.createElement('div');
                 blockId.className = 'block-id';
-                blockId.textContent = `区块 ID: ${node.block.block_id}`;
+                blockId.textContent = `区块 ID: ${node.block.block_id.substring(0,12)}...`;
+                blockId.title = node.block.block_id;
                 blockInfo.appendChild(blockId);
                 
-                // 区块哈希
-                const blockHash = document.createElement('div');
-                blockHash.className = 'block-hash';
-                blockHash.textContent = `父区块: ${node.block.prev_id || '无'}`;
+                const blockHash = document.createElement('div'); 
+                blockHash.className = 'block-hash'; 
+                const prevIdDisplay = (node.block.prev_id === "0000000000000000000000000000000000000000000000000000000000000000" || node.block.prev_id === "000000") 
+                                    ? '创世块' 
+                                    : (node.block.prev_id.substring(0,12) + '...');
+                blockHash.textContent = `父区块: ${prevIdDisplay}`;
+                blockHash.title = node.block.prev_id;
                 blockInfo.appendChild(blockHash);
                 
-                // 区块详情容器
                 const detailsContainer = document.createElement('div');
                 detailsContainer.className = 'block-details';
                 blockNode.appendChild(detailsContainer);
                 
-                // 添加详情内容
                 const senderInfo = document.createElement('div');
                 senderInfo.className = 'detail-row';
                 senderInfo.innerHTML = `<span class="detail-label">生产者:</span><span class="detail-value">${node.block.sender || '未知'}</span>`;
@@ -1137,8 +1270,14 @@ display: flex;
                 const time = new Date(node.block.timestamp * 1000);
                 timestampInfo.innerHTML = `<span class="detail-label">时间:</span><span class="detail-value">${time.toLocaleString()}</span>`;
                 detailsContainer.appendChild(timestampInfo);
+
+                if (node.block.message_id) {
+                    const msgIdInfo = document.createElement('div');
+                    msgIdInfo.className = 'detail-row';
+                    msgIdInfo.innerHTML = `<span class="detail-label">消息ID:</span><span class="detail-value">${node.block.message_id}</span>`;
+                    detailsContainer.appendChild(msgIdInfo);
+                }
                 
-                // 交易列表
                 if (node.block.tx_list && node.block.tx_list.length) {
                     const txInfo = document.createElement('div');
                     txInfo.className = 'detail-row';
@@ -1147,207 +1286,173 @@ display: flex;
                     
                     const txList = document.createElement('div');
                     txList.className = 'tx-list';
-                    
                     node.block.tx_list.slice(0, 3).forEach(tx => {
                         const txItem = document.createElement('div');
                         txItem.className = 'tx-item';
-                        txItem.textContent = `TX: ${tx.tx_id || tx.message_id || '未知交易'}`;
+                        const txDisplayId = (tx.tx_id || tx.message_id || '未知交易');
+                        txItem.textContent = `TX: ${txDisplayId.substring(0,20)}...`;
+                        txItem.title = txDisplayId;
                         txList.appendChild(txItem);
                     });
-                    
                     if (node.block.tx_list.length > 3) {
                         const more = document.createElement('div');
                         more.className = 'tx-item';
+                        more.style.fontStyle = 'italic';
                         more.textContent = `+ ${node.block.tx_list.length - 3} 更多交易...`;
                         txList.appendChild(more);
                     }
-                    
                     detailsContainer.appendChild(txList);
                 }
                 
-                // 默认展开第一级
-                if (level < 2) {
-                    detailsContainer.style.display = 'block';
-                } else {
-                    detailsContainer.style.display = 'none';
-                }
-                
-                // 添加折叠/展开功能
-                blockHeader.addEventListener('click', function() {
-                    if (toggleIcon.querySelector('i')) {
-                        const icon = toggleIcon.querySelector('i');
-                        if (icon.classList.contains('fa-minus')) {
-                            icon.classList.remove('fa-minus');
-                            icon.classList.add('fa-plus');
-                        } else {
-                            icon.classList.remove('fa-plus');
-                            icon.classList.add('fa-minus');
-                        }
-                    }
-                    
-                    // 切换详情显示
-                    if (detailsContainer.style.display === 'none') {
-                        detailsContainer.style.display = 'block';
-                    } else {
-                        detailsContainer.style.display = 'none';
-                    }
-                });
-                
-                // 如果有子节点，递归渲染
+                let childrenContainer;
+                const initiallyExpanded = level < 1; 
+
                 if (node.children && node.children.length > 0) {
-                    const childrenContainer = document.createElement('div');
+                    childrenContainer = document.createElement('div');
                     childrenContainer.className = 'children-container';
+                    blockNode.appendChild(childrenContainer);
                     
+                    detailsContainer.style.display = initiallyExpanded ? 'block' : 'none';
+                    childrenContainer.style.display = initiallyExpanded ? 'block' : 'none';
+                    toggleIcon.innerHTML = `<i class="fas ${initiallyExpanded ? 'fa-minus' : 'fa-plus'}"></i>`;
+
                     node.children.forEach(child => {
                         renderNode(child, childrenContainer, level + 1);
                     });
-                    
-                    blockNode.appendChild(childrenContainer);
-                    
-                    // 为父节点添加折叠功能
-                    blockHeader.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        
-                        if (childrenContainer.style.display === 'none') {
-                            childrenContainer.style.display = 'block';
-                        } else {
-                            childrenContainer.style.display = 'none';
-                        }
-                    });
+                } else {
+                    toggleIcon.innerHTML = '•'; // Use a bullet for nodes with no children
+                    detailsContainer.style.display = initiallyExpanded ? 'block' : 'none';
                 }
                 
+                blockHeader.addEventListener('click', function() {
+                    const detailsAreVisible = detailsContainer.style.display === 'block';
+                    const newDisplayState = detailsAreVisible ? 'none' : 'block';
+                    
+                    detailsContainer.style.display = newDisplayState;
+                    if (childrenContainer) {
+                        childrenContainer.style.display = newDisplayState;
+                        toggleIcon.innerHTML = `<i class="fas ${newDisplayState === 'block' ? 'fa-minus' : 'fa-plus'}"></i>`;
+                    } else if (toggleIcon.innerHTML !== '•') { // Only update if it was +/-
+                         // If it's a leaf node but was expandable (e.g. details only)
+                        // This part might not be strictly necessary if '•' is used for no children
+                    }
+                });
                 parentElement.appendChild(blockNode);
             }
-            
-            // 渲染所有根节点
-            data.forEach(rootNode => {
-                renderNode(rootNode, container, 0);
-            });
+            // Ensure data is an array before calling forEach
+            if (Array.isArray(data)) {
+                data.forEach(rootNode => renderNode(rootNode, container, 0));
+            } else if (typeof data === 'object' && data !== null && data.block) {
+                // Handle case where a single root node object is returned (less common for a list endpoint)
+                 renderNode(data, container, 0);
+            } else {
+                console.error("Block data is not in expected array format:", data);
+                container.innerHTML = '<div class="empty-message">区块数据格式错误</div>';
+            }
         }
-        
-        // 更新页面切换功能
-        function setupPageNavigation() {
-            const pages = {
-                overview: document.getElementById('overview-page'),
-                blocks: document.getElementById('blocks-page'),
-                peers: document.getElementById('peers-page'),
-                transactions: document.getElementById('transactions-page'),
-                performance: document.getElementById('performance-page'),
-                outbox: document.getElementById('outbox-page'),
-                settings: document.getElementById('settings-page')
-            };
-            
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const section = this.getAttribute('data-section');
-                    
-                    // 隐藏所有页面
-                    Object.values(pages).forEach(page => {
-                        if (page) page.style.display = 'none';
-                    });
-                    
-                    // 显示当前页面
-                    const currentPage = pages[section];
-                    if (currentPage) {
-                        currentPage.style.display = 'block';
-                        
-                        // 如果是区块页面，加载区块树
-                        if (section === 'blocks') {
-                            fetchBlocksTree();
+
+        // Helper function to extract all blocks from the tree and sort them by timestamp
+        function extractAndSortBlocksFromTree(treeData) {
+            const flatBlocks = [];
+            const uniqueBlockIds = new Set();
+
+            function traverse(nodes) {
+                if (!Array.isArray(nodes)) return;
+                nodes.forEach(node => {
+                    if (node && node.block) {
+                        if (!uniqueBlockIds.has(node.block.block_id)) {
+                             flatBlocks.push({
+                                hash: node.block.block_id, // 'hash' for consistency with updateBlocks
+                                transactions: node.block.tx_list || [],
+                                timestamp: node.block.timestamp
+                            });
+                            uniqueBlockIds.add(node.block.block_id);
+                        }
+                        if (node.children && node.children.length > 0) {
+                            traverse(node.children);
                         }
                     }
-                    
-                    // 更新活动导航项
-                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
                 });
-            });
+            }
+            traverse(treeData);
+            return flatBlocks.sort((a, b) => b.timestamp - a.timestamp);
         }
         
-        // 获取区块树数据
-        async function fetchBlocksTree() {
-            const container = document.getElementById('blocks-tree-container');
-            container.innerHTML = '<div class="loading-block">加载区块树结构中...</div>';
-            
+        async function fetchLatestBlocks() { // For the overview "最新区块" card
             try {
-                const response = await fetch('/blocks');
-                const data = await response.json();
-                renderBlockTree(data, container);
+                const response = await fetch('/blocks'); // Assumes this returns the full tree
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+                const treeData = await response.json();
+                const sortedFlatBlocks = extractAndSortBlocksFromTree(treeData);
+                updateBlocks(sortedFlatBlocks); // updateBlocks now expects a flat, sorted list
             } catch (error) {
-                console.error('获取区块树失败:', error);
-                container.innerHTML = '<div class="empty-message">无法加载区块数据</div>';
+                console.error('获取最新区块数据失败:', error);
+                elements.blocksList.innerHTML = `<div class="block-row"><div class="block-icon"><i class="fas fa-exclamation-circle"></i></div><div class="block-info"><div>加载失败: ${error.message}</div></div></div>`;
             }
         }
-        
-        // 获取节点数据
+
         async function fetchPeers() {
+            const loadingIcon = elements.refreshPeersBtn.querySelector('.loading');
+            loadingIcon.style.display = 'inline-block';
+            elements.refreshPeersBtn.disabled = true;
             try {
-                // 显示加载状态
-                const loadingIcon = elements.refreshPeersBtn.querySelector('.loading');
-                loadingIcon.style.display = 'inline-block';
-                elements.refreshPeersBtn.disabled = true;
-                
                 const response = await fetch('/peers');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
                 const data = await response.json();
                 updatePeers(data);
-                
-                // 隐藏加载状态
-                loadingIcon.style.display = 'none';
-                elements.refreshPeersBtn.disabled = false;
             } catch (error) {
                 console.error('获取节点数据失败:', error);
-                elements.peersTable.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--danger);">加载失败</td></tr>';
-                
-                // 隐藏加载状态
-                const loadingIcon = elements.refreshPeersBtn.querySelector('.loading');
+                elements.peersTable.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--danger);">加载失败: ${error.message}</td></tr>`;
+            } finally {
                 loadingIcon.style.display = 'none';
                 elements.refreshPeersBtn.disabled = false;
             }
         }
         
-        // 获取交易数据
         async function fetchTransactions() {
+            elements.transactionsTable.innerHTML = '<tr><td colspan="3" style="text-align: center;">加载中...</td></tr>';
             try {
-                elements.transactionsTable.innerHTML = '<tr><td colspan="3" style="text-align: center;">加载中...</td></tr>';
-                
                 const response = await fetch('/transactions');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
                 const data = await response.json();
                 updateTransactions(data);
             } catch (error) {
                 console.error('获取交易数据失败:', error);
-                elements.transactionsTable.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--danger);">加载失败</td></tr>';
+                elements.transactionsTable.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--danger);">加载失败: ${error.message}</td></tr>`;
             }
         }
         
-        // 获取消息队列数据
         async function fetchOutbox() {
+             elements.outboxTable.innerHTML = '<tr><td colspan="3" style="text-align: center;">加载中...</td></tr>';
             try {
-                elements.outboxTable.innerHTML = '<tr><td colspan="3" style="text-align: center;">加载中...</td></tr>';
-                
                 const response = await fetch('/outbox');
+                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
                 const data = await response.json();
                 updateOutbox(data);
             } catch (error) {
                 console.error('获取消息队列数据失败:', error);
-                elements.outboxTable.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--danger);">加载失败</td></tr>';
+                elements.outboxTable.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--danger);">加载失败: ${error.message}</td></tr>`;
             }
         }
         
-        // 更新节点数据
         function updatePeers(peers) {
-            // 更新统计信息
-            const activePeers = peers.filter(p => p.status === 'ONLINE').length;
-            elements.activePeers.textContent = activePeers;
-            elements.peersProgress.style.width = `${Math.min(100, activePeers * 4)}%`;
+            if (!Array.isArray(peers)) {
+                console.error("Peers data is not an array:", peers);
+                elements.peersTable.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--danger);">节点数据格式错误</td></tr>';
+                elements.activePeers.textContent = "错误";
+                return;
+            }
+            const activePeersCount = peers.filter(p => p.status === 'ONLINE').length;
+            elements.activePeers.textContent = activePeersCount;
+            elements.peersProgress.style.width = `${Math.min(100, activePeersCount / (peers.length || 1) * 100)}%`; 
             
-            // 更新节点表格
             let tableHTML = '';
-             peers.forEach(peer => {
-                const shortId = peer.peer_id.length > 10 ? 
-                    peer.peer_id.substr(0, 6) + '...' + peer.peer_id.substr(-4) : 
-                    peer.peer_id;
+            peers.forEach(peer => {
+                const shortId = peer.peer_id && peer.peer_id.length > 15 ? 
+                    peer.peer_id.substr(0, 6) + '...' + peer.peer_id.substr(-6) : 
+                    (peer.peer_id || '未知ID');
                 
-                let statusClass = 'status-offline';
+                let statusClass = 'status-offline'; let statusText = peer.status || '未知';
                 if (peer.status === 'ONLINE') statusClass = 'status-online';
                 else if (peer.status === 'SYNCING') statusClass = 'status-syncing';
                 
@@ -1355,168 +1460,133 @@ display: flex;
                 if (peer.latency < 100) latencyClass = 'latency-low';
                 else if (peer.latency < 200) latencyClass = 'latency-medium';
                 
-                const peerType = peer.type === 'lightweight' ? 'peer-light' : 'peer-full';
+                const peerTypeClass = peer.type === 'lightweight' ? 'peer-light' : 'peer-full';
                 const peerTypeText = peer.type === 'lightweight' ? '轻节点' : '全节点';
                 
-                const natStatus = peer.NATed ? '已启用' : '未启用';
-                const natClass = peer.NATed ? 'status-syncing' : '';
+                const natStatusText = peer.NATed ? '已启用' : '未启用';
+                const natClass = peer.NATed ? 'status-warning' : 'status-success'; 
                 
                 tableHTML += `
                 <tr>
-                    <td title="${peer.peer_id}">${shortId}</td>
-                    <td>${peer.ip}</td>
-                    <td>${peer.port}</td>
-                    <td><span class="status-badge ${statusClass}">${peer.status}</span></td>
-                    <td><span class="latency-indicator ${latencyClass}"></span> ${peer.latency} ms</td>
-                    <td><span class="peer-type ${peerType}">${peerTypeText}</span></td>
-                    <td><span class="status-badge ${natClass}">${natStatus}</span></td>
-                    <td>${peer.localnetworkid}</td>
-                </tr>
-                `;
+                    <td title="${peer.peer_id || ''}">${shortId}</td>
+                    <td>${peer.ip || 'N/A'}</td>
+                    <td>${peer.port || 'N/A'}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td><span class="latency-indicator ${latencyClass}"></span> ${peer.latency != null ? peer.latency + ' ms' : 'N/A'}</td>
+                    <td><span class="peer-type ${peerTypeClass}">${peerTypeText}</span></td>
+                    <td><span class="status-badge ${natClass}">${natStatusText}</span></td>
+                    <td>${peer.localnetworkid || 'N/A'}</td>
+                </tr>`;
             });
-            
             elements.peersTable.innerHTML = tableHTML || '<tr><td colspan="8" style="text-align: center;">无节点数据</td></tr>';
         }
         
-        // 更新区块数据
-        function updateBlocks(blocks) {
-            // 更新区块高度
-            const blockCount = blocks.length;
-            elements.blockCount.textContent = blockCount;
-            elements.blockHeight.textContent = `#${blockCount}`;
-            elements.blocksProgress.style.width = `${Math.min(100, blockCount / 1000 * 100)}%`;
-            
-            // 更新区块列表
+        // updateBlocks is for "最新区块" list on overview page, expects flat sorted array of blocks
+        function updateBlocks(latestBlocksFlat) {
+            if (!Array.isArray(latestBlocksFlat)) {
+                 console.error("Latest blocks data is not an array:", latestBlocksFlat);
+                 elements.blocksList.innerHTML = '<div class="block-row"><div class="block-icon"><i class="fas fa-exclamation-circle"></i></div><div class="block-info"><div>区块数据格式错误</div></div></div>';
+                 return;
+            }
+
+            const totalBlockCount = latestBlocksFlat.length; // This is the count of unique blocks from the tree
+            elements.blockCountStat.textContent = totalBlockCount;
+            elements.blockHeightSysInfo.textContent = `#${totalBlockCount}`;
+            elements.blocksProgress.style.width = `${Math.min(100, (totalBlockCount % 1000) / 10)}%`; 
+
             let blocksHTML = '';
-            blocks.slice(0, 3).forEach((block, index) => {
-                const blockNumber = blockCount - index;
-                const blockHash = block.hash ? 
+            latestBlocksFlat.slice(0, 5).forEach(block => { 
+                const blockHashShort = block.hash ? 
                     block.hash.substr(0, 8) + '...' + block.hash.substr(-8) : 
                     '未知哈希';
-                
                 const txCount = block.transactions ? block.transactions.length : 0;
+                const timeAgo = block.timestamp ? formatTimeAgo(block.timestamp * 1000) : "未知时间";
                 
                 blocksHTML += `
                 <div class="block-row">
-                    <div class="block-icon">
-                        <i class="fas fa-cube"></i>
-                    </div>
+                    <div class="block-icon"><i class="fas fa-cube"></i></div>
                     <div class="block-info">
-                        <div>区块 #${blockNumber}</div>
-                        <div class="block-hash">${blockHash}</div>
-                        <div>${txCount} 笔交易 | 刚刚</div>
+                        <div>区块 <span class="block-hash" title="${block.hash || ''}">${blockHashShort}</span></div>
+                        <div>${txCount} 笔交易 | ${timeAgo}</div>
                     </div>
-                </div>
-                `;
+                </div>`;
             });
-            
             elements.blocksList.innerHTML = blocksHTML || '<div class="block-row"><div class="block-icon"><i class="fas fa-cube"></i></div><div class="block-info"><div>无区块数据</div></div></div>';
         }
-        
-        // 更新交易数据
-        function updateTransactions(transactions) {
-            // 更新交易统计
-            const pendingTxs = transactions.length;
-            elements.pendingTxs.textContent = pendingTxs;
-            elements.txsProgress.style.width = `${Math.min(100, pendingTxs / 100 * 100)}%`;
+
+        function formatTimeAgo(timestamp) {
+            const now = Date.now();
+            const seconds = Math.round((now - timestamp) / 1000);
+
+            if (seconds < 5) return `刚刚`;
+            if (seconds < 60) return `${seconds} 秒前`;
             
-            // 更新交易表格
+            const minutes = Math.round(seconds / 60);
+            if (minutes < 60) return `${minutes} 分钟前`;
+            
+            const hours = Math.round(minutes / 60);
+            if (hours < 24) return `${hours} 小时前`;
+            
+            const days = Math.round(hours / 24);
+            return `${days} 天前`;
+        }
+        
+        function updateTransactions(transactions) {
+            if (!Array.isArray(transactions)) {
+                console.error("Transactions data is not an array:", transactions);
+                elements.transactionsTable.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--danger);">交易数据格式错误</td></tr>';
+                elements.pendingTxs.textContent = "错误";
+                return;
+            }
+            const pendingTxsCount = transactions.filter(tx => tx.status === 'PENDING' || tx.status === '待处理').length; // Adjusted for PENDING
+            elements.pendingTxs.textContent = pendingTxsCount;
+            elements.txsProgress.style.width = `${Math.min(100, pendingTxsCount / (transactions.length || 1) * 100)}%`;
+            
             let tableHTML = '';
-            transactions.slice(0, 4).forEach(tx => {
-                const txId = tx.id ? 
-                    tx.id.substr(0, 8) + '...' + tx.id.substr(-8) : 
-                    '未知ID';
-                
-                const amount = tx.amount ? `${tx.amount} ETH` : '未知金额';
-                
-                let statusClass = 'status-syncing';
-                let statusText = '待处理';
-                if (tx.status === 'CONFIRMED') {
-                    statusClass = 'status-online';
-                    statusText = '已确认';
-                }
-                
+            transactions.slice(0, 5).forEach(tx => { 
+                const txIdShort = tx.id ? tx.id.substr(0, 8) + '...' + tx.id.substr(-8) : '未知ID';
+                const amount = tx.amount != null ? `${tx.amount} ETH` : '未知金额'; // Ensure amount exists
+                let statusClass = 'status-syncing'; let statusText = tx.status || '未知';
+                if (tx.status === 'CONFIRMED' || tx.status === '已确认') { statusClass = 'status-online'; statusText = '已确认'; }
+                else if (tx.status === 'FAILED' || tx.status === '失败') { statusClass = 'status-offline'; statusText = '失败'; }
+                else if (tx.status === 'PENDING' || tx.status === '待处理') { statusClass = 'status-syncing'; statusText = '待处理';}
+
                 tableHTML += `
                 <tr>
-                    <td>${txId}</td>
+                    <td title="${tx.id || ''}">${txIdShort}</td>
                     <td>${amount}</td>
                     <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                </tr>
-                `;
+                </tr>`;
             });
-            
             elements.transactionsTable.innerHTML = tableHTML || '<tr><td colspan="3" style="text-align: center;">无交易数据</td></tr>';
         }
         
-        // 更新消息队列数据
-        function updateOutbox(outboxData) {
-            const outbox = outboxData.data || {};
+        function updateOutbox(outboxDataContainer) {
+            const outbox = outboxDataContainer ? outboxDataContainer.data : null;
+            if (!outbox || typeof outbox !== 'object') {
+                 console.error("Outbox data is not in the expected format:", outboxDataContainer);
+                 elements.outboxTable.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--danger);">消息队列数据格式错误</td></tr>';
+                 return;
+            }
             
-            // 更新消息队列表格
             let tableHTML = '';
-            Object.entries(outbox).slice(0, 4).forEach(([peerId, data]) => {
-                const shortId = peerId.length > 10 ? 
-                    peerId.substr(0, 6) + '...' + peerId.substr(-4) : 
-                    peerId;
-                
-                let priorityClass = 'priority-medium';
-                let priorityText = '中';
-                
-                // 确定最高优先级
-                if (data.high_priority > 0) {
-                    priorityClass = 'priority-high';
-                    priorityText = '高';
-                } else if (data.low_priority > 0 && data.medium_priority === 0) {
-                    priorityClass = 'priority-low';
-                    priorityText = '低';
-                }
+            Object.entries(outbox).slice(0, 5).forEach(([peerId, data]) => { 
+                const shortId = peerId.length > 15 ? peerId.substr(0, 6) + '...' + peerId.substr(-6) : peerId;
+                let priorityClass = 'priority-medium'; let priorityText = '中';
+                if (data.high_priority > 0) { priorityClass = 'priority-high'; priorityText = '高'; }
+                else if (data.low_priority > 0 && data.medium_priority === 0 && data.high_priority === 0) { priorityClass = 'priority-low'; priorityText = '低';}
                 
                 tableHTML += `
                 <tr>
-                    <td>${shortId}</td>
+                    <td title="${peerId}">${shortId}</td>
                     <td><span class="queue-priority ${priorityClass}">${priorityText}</span></td>
-                    <td>${data.total}</td>
-                </tr>
-                `;
+                    <td>${data.total != null ? data.total : 'N/A'}</td>
+                </tr>`;
             });
-            
             elements.outboxTable.innerHTML = tableHTML || '<tr><td colspan="3" style="text-align: center;">无待发送消息</td></tr>';
         }
         
-        // 更新延迟数据
-        function updateLatency(latencyDataResponse) {
-            // 收集延迟数据用于图表
-            const latencies = latencyDataResponse.map(item => item.latency_ms);
-            const avgLatency = latencies.reduce((a, b) => a + b, 0) / latencies.length || 0;
-            
-            // 更新图表数据
-            latencyData.push(avgLatency);
-            if (latencyData.length > 12) latencyData.shift();
-            
-            // 更新吞吐量数据（模拟）
-            throughputData.push(Math.random() * 20 + 25);
-            if (throughputData.length > 12) throughputData.shift();
-            
-            // 更新图表
-            updateChart();
-        }
-        
-        // 更新容量数据
-        function updateCapacity(capacityData) {
-            // 更新网络吞吐量显示
-            const throughput = capacityData.capacity * 0.8; // 模拟实际吞吐量
-            elements.networkThroughput.textContent = `${throughput.toFixed(1)} MB/s`;
-            elements.throughputProgress.style.width = `${Math.min(100, throughput / 50 * 100)}%`;
-        }
-        
-        // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', initDashboard);
-        
-        // 模拟实时数据更新
-        setInterval(() => {
-            // 每10秒更新一次数据
-            fetchDashboardData();
-        }, 10000);
     </script>
 </body>
 </html>
