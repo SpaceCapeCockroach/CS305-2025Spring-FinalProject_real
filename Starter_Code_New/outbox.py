@@ -8,7 +8,7 @@ from threading import Lock
 from utils import generate_message_id
 
 # === Per-peer Rate Limiting ===
-RATE_LIMIT = 10  # max messages
+RATE_LIMIT = 50  # max messages
 TIME_WINDOW = 10  # per seconds
 peer_send_timestamps = defaultdict(list) # the timestamps of sending messages to each peer
 
@@ -17,13 +17,13 @@ RETRY_INTERVAL = 5  # seconds
 QUEUE_LIMIT = 50
 
 # Priority levels
-PRIORITY_HIGH = {"PING", "PONG", "BLOCK", "INV", "GETDATA"}
-PRIORITY_MEDIUM = {"TX", "HELLO"}
-PRIORITY_LOW = {"RELAY"}
+PRIORITY_HIGH = {"PING", "PONG", "BLOCK", "INV", "GET_BLOCK_HEADERS","BLOCK_HEADERS", "GET_BLOCK"}
+PRIORITY_MEDIUM = {"TX", "HELLO","RELAY"}
+PRIORITY_LOW = {"GETBLOCKHEADERS", "GETBLOCKS"}
 
 DROP_PROB = 0.05
 LATENCY_MS = (20, 100)
-SEND_RATE_LIMIT = 5  # messages per second
+SEND_RATE_LIMIT = 500  # messages per second
 
 drop_stats = {
     "BLOCK": 0,
@@ -218,7 +218,7 @@ def relay_or_direct_send(self_id, dst_id, message):
 
     # pass
     # 检查目标是否NAT
-    print(f"[debug]Sending message to {dst_id} from {self_id} - Message: {message}")
+    # print(f"[debug]Sending message to {dst_id} from {self_id} - Message: {message}")
 
     # direct = peer_config.get(self_id,{}).get("localnetworkid",None)==peer_config.get(dst_id,{}).get("localnetworkid",None) or (not peer_flags.get(dst_id, {}).get("nat", False) and not peer_flags.get(self_id, {}).get("nat", False)) 
     # if not direct:
@@ -284,10 +284,10 @@ def apply_network_conditions(send_func):
         # TODO: Send the message using the function `send_func`.
         # pass
         # 速率限制检查
-        if not rate_limiter.allow():
-            msg_type = json.loads(message).get("type", "OTHER")
-            drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
-            return False
+        # if not rate_limiter.allow():
+        #     msg_type = json.loads(message).get("type", "OTHER")
+        #     drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
+        #     return False
 
         # 随机丢包
         if random.random() < DROP_PROB:
@@ -315,6 +315,7 @@ def send_message(ip, port, message):
     # pass
     try:
         # 创建TCP Socket
+        print(f"[debug]Sending message to {port}- Message: {message}")
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(5)  # 设置超时时间（秒）
             s.connect((ip, port))
@@ -377,7 +378,7 @@ def gossip_message(self_id, message, fanout=3):
     candidates = []
     for peer_id in known_peers:
         # 如果是交易，跳过轻节点
-        if json.loads(message).get("type") == "TX" and peer_config.get("light", False):
+        if (json.loads(message).get("type") == "TX" and peer_config.get("light", False)) or peer_id == self_id:
             continue
         candidates.append(peer_id)
 

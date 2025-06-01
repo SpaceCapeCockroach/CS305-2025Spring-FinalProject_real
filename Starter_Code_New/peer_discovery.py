@@ -1,6 +1,6 @@
 import json, time, threading
 from utils import generate_message_id
-from outbox import enqueue_message
+from outbox import enqueue_message, gossip_message
 
 
 known_peers = {}        # { peer_id: (ip, port) }
@@ -64,7 +64,7 @@ def start_peer_discovery(self_id, self_info):
                     peer_id, peer_ip ,peer_port,json.dumps(message),
                 )
                 #print(f"[{self_id}][debug]Sent hello message to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
-            time.sleep(20)
+            time.sleep(60)
     threading.Thread(target=loop, daemon=True).start()
 
 def handle_hello_message(msg, self_id):
@@ -91,16 +91,18 @@ def handle_hello_message(msg, self_id):
 
         if self_id == sender_id:
             return  # 不处理自己的HELLO消息
-        
+            
 
         if data['TTL'] > 0:
-            for peer_id in known_peers:
-                #将helo转发给所有的已知节点
-                peer_ip, peer_port = known_peers[peer_id]
-                if peer_id == sender_id or peer_id == self_id: continue  # 不发送给发送方,不给自己发
-                enqueue_message(
-                    peer_id, peer_ip ,peer_port,json.dumps(data),
-                )
+            gossip_message(self_id, json.dumps(data))  # 转发hello消息
+            
+            # for peer_id in known_peers:
+            #     #将helo转发给所有的已知节点
+            #     peer_ip, peer_port = known_peers[peer_id]
+            #     if peer_id == sender_id or peer_id == self_id: continue  # 不发送给发送方,不给自己发
+            #     enqueue_message(
+            #         peer_id, peer_ip ,peer_port,json.dumps(data),
+            #     )
                 #print(f"[{self_id}][relay_hello]Relay hello message from sender:{sender_id} to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
         
         # 2. 处理新节点

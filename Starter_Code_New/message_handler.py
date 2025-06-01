@@ -25,7 +25,7 @@ peer_inbound_timestamps = defaultdict(list)
 seen_lock = threading.RLock()
 
 # === Inbound Rate Limiting ===
-INBOUND_RATE_LIMIT = 10
+INBOUND_RATE_LIMIT = 100
 INBOUND_TIME_WINDOW = 10  # seconds
 
 def is_inbound_limited(peer_id):
@@ -224,8 +224,11 @@ def dispatch_message(msg_raw, self_id, self_ip):
         missing = remote_inv - set(local_inv)
         
         if missing:
+            print(f"[{self_id}] 缺少区块 from {sender_id}，区块ID: {msg['block_ids']}，发起请求...")
             getblock_msg = create_getblock(self_id, list(missing))
             enqueue_message(sender_id, known_peers[sender_id][0],known_peers[sender_id][1], json.dumps(getblock_msg))
+        else:
+            print(f"[{self_id}] 已拥有所有区块 from {sender_id}，无需请求")
 
     elif msg_type == "GETBLOCK":
         
@@ -264,7 +267,10 @@ def dispatch_message(msg_raw, self_id, self_ip):
                         break
                 # 如果区块不在本地，尝试从其他节点获取
                     new_getblock = create_getblock(self_id, [bid])
-                    gossip_message(self_id, json.dumps(new_getblock))
+                    for peer_id, (ip, port) in known_peers.items():
+                        if peer_id == self_id or peer_id == sender_id: continue
+                        enqueue_message(peer_id, ip, port, json.dumps(new_getblock))
+                    # gossip_message(self_id, json.dumps(new_getblock))
                 time.sleep(request_delay)  # 等待一段时间再重试
         
         # 发送找到的区块
@@ -329,7 +335,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
                 if hdr["hash"] not in current_chain
             ]
             header_store.extend(new_headers)
-            print(f"[{self_id}] 轻节点添加 {len(new_headers)} 个新区块头")
+            print(f"[{self_id}] 节点添加 {len(new_headers)} 个新区块头")
 
 
         if not is_light_node:

@@ -46,7 +46,7 @@ def request_block_sync(self_id):
                     peer_id,ip, port,
                     json.dumps(get_block_headers_msg),
                 )
-        time.sleep(20)  # 每30秒请求一次区块头信息
+        time.sleep(120)  # 每120秒请求一次区块头信息
 
 def block_generation(self_id, MALICIOUS_MODE, interval=100):
     from inv_message import create_inv
@@ -86,6 +86,7 @@ def block_generation(self_id, MALICIOUS_MODE, interval=100):
 
           
             handle_block(json.dumps(block), self_id)
+
 
             time.sleep(interval)
     threading.Thread(target=mine, daemon=True).start()
@@ -168,13 +169,19 @@ def handle_block(msg, self_id):
                 return
             # 主链连接检查
             if  block['prev_id'] == '0'*64 :
-                print(f"接收到新区块 | 前哈希: {block['prev_id'][:8]}...")
+
+                if not sender_id == self_id:
+                    print(f"接收到由{sender_id}创建的新区块 | 前哈希: {block['prev_id'][:8]}...")
                 add_to_chain(block,self_id)
                 check_orphans(block['block_id'])
+
             elif block['prev_id'] == received_blocks[-1]['block_id']:
-                 print(f"接收到新区块 | 前哈希: {block['prev_id'][:8]}...")
+                 
+                 if not sender_id == self_id:
+                    print(f"接收到由{sender_id}创建的新区块 | 前哈希: {block['prev_id'][:8]}...")
                  add_to_chain(block,self_id)
                  check_orphans(block['block_id'])
+
             else:
                 # 存入孤儿区块
                 orphan_blocks.setdefault(block['prev_id'], []).append(block)
