@@ -1453,8 +1453,8 @@
                     (peer.peer_id || '未知ID');
                 
                 let statusClass = 'status-offline'; let statusText = peer.status || '未知';
-                if (peer.status === 'ONLINE') statusClass = 'status-online';
-                else if (peer.status === 'SYNCING') statusClass = 'status-syncing';
+                if (peer.status === 'ALIVE') statusClass = 'status-online';
+                else if (peer.status === 'MYSELF') statusClass = 'status-syncing';
                 
                 let latencyClass = 'latency-high';
                 if (peer.latency < 100) latencyClass = 'latency-low';

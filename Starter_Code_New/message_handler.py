@@ -251,7 +251,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
         for bid in requested:
             # 尝试从本地区块链获取区块
             for i in range(4):  # 最多重新尝试3次 
-                request_delay=2**i
+                request_delay=5**i
                 block = get_block_by_id(bid)
                 if block:
                     found.append(block)
