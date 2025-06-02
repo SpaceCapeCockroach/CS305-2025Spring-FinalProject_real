@@ -23,12 +23,12 @@ def start_dashboard(peer_id, port):
 
 @app.route('/')
 def home():
-    return render_template('dashboard.html')
+    return render_template('index.html')
 
 @app.route('/dashboard')
 def dashboard():
     """仪表盘页面"""
-    return render_template('dashboard.html')
+    return render_template('index.html')
 # @app.route('/blocks')
 # def blocks():
 #     # TODO: display the blocks in the local blockchain.
@@ -204,25 +204,26 @@ def redundancy_stats():
 
 @app.route('/outbox')
 def outbox_status():
-    """ 展示待发送消息队列状态 """
     try:
-        # 获取原始队列状态
-        raw_status = get_outbox_status()
+        raw_outbox_data = get_outbox_status() 
         
-        # 转换为更易读的格式
-        formatted_status = {}
-        for peer_id, priorities in raw_status.items():
-            formatted_status[peer_id] = {
-                "high_priority": priorities.get(1, 0),
-                "medium_priority": priorities.get(2, 0),
-                "low_priority": priorities.get(3, 0),
-                "total": sum(priorities.values())
-            }
+        formatted_data = {}
+        priority_map = {
+            "1": "high",
+            "2": "medium",
+            "3": "low" 
+        }
+
+        for peer_id, priorities_map in raw_outbox_data.items():
+            formatted_priorities = {}
+            for pri_key, messages in priorities_map.items():
+                pri_name = priority_map.get(str(pri_key), f"unknown_priority_{pri_key}")
+                formatted_priorities[pri_name] = messages 
+            formatted_data[peer_id] = formatted_priorities
         
         return jsonify({
-            "message": "Outbox queue status",
-            "data": formatted_status
+            "message": "Outbox queue status with full message details",
+            "data": formatted_data
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-

@@ -63,9 +63,10 @@ def handle_pong(msg):
         data = json.loads(msg)
         peer_id = data['sender']
         original_ts = data['timestamp']
-        print(f'收到来自 {peer_id} 的 PONG 响应，原始时间戳: {original_ts}')
+      
         # 计算往返时间（RTT）
-        rtt = (time.time() - original_ts) * 1000  # 转换为毫秒
+        rtt = (time.time() - original_ts) * 1000  # 转换为毫秒  
+        print(f'收到来自 {peer_id} 的 PONG 响应，原始时间戳: {original_ts}, RTT: {rtt/1000:.2f} s')
         with Lock:
             rtt_tracker[peer_id].append(rtt)
         

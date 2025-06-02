@@ -37,12 +37,12 @@ drop_stats = {
 priority_order = {
     "BLOCK": 1,
     "TX": 1,
-    "PING": 2,
+    "PING": 1,
     "PONG": 2,
     "HELLO": 2,
     "BLOCK_HEADERS": 2,
     "INV": 2,
-    "GET_BLOCK_HEADERS": 1,
+    "GET_BLOCK_HEADERS": 2,
     "GET_BLOCK": 1,
     "RELAY": 2,
 }
@@ -397,12 +397,14 @@ def gossip_message(self_id, message, fanout=3):
 
 
 def get_outbox_status():
-    # TODO: Return the message in the outbox queue.
-    # pass
+    # 返回每个peer下所有优先级队列中的完整消息内容
     with lock:
         return {
-            peer: {pri: len(q) for pri, q in queues[peer].items()}
-            for peer in queues
+            peer: {
+                priority: list(message_queue)  
+                for priority, message_queue in peer_queues.items()
+            }
+            for peer, peer_queues in queues.items()
         }
 
 

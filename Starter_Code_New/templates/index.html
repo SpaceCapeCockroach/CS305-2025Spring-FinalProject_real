@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P 网络仪表盘</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- 侧边导航栏 -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-project-diagram"></i>
+                <h1>P2P 仪表盘</h1>
+            </div>
+            
+            <div class="nav-links">
+                <div class="nav-item active" data-section="overview">
+                    <i class="fas fa-home"></i>
+                    <span>总览</span>
+                </div>
+                <div class="nav-item" data-section="blocks">
+                    <i class="fas fa-cube"></i>
+                    <span>区块浏览器</span>
+                </div>
+                <div class="nav-item" data-section="peers">
+                    <i class="fas fa-network-wired"></i>
+                    <span>节点监控</span>
+                </div>
+                <div class="nav-item" data-section="transactions">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>交易池</span>
+                </div>
+                <div class="nav-item" data-section="performance">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>网络性能</span>
+                </div>
+                <div class="nav-item" data-section="outbox">
+                    <i class="fas fa-envelope"></i>
+                    <span>消息队列</span>
+                </div>
+                <div class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>设置</span>
+                </div>
+            </div>
+            
+            <div class="system-info">
+                <div>
+                    <span>节点ID:</span>
+                    <span id="node-id">加载中...</span>
+                </div>
+                <div>
+                    <span>区块高度:</span>
+                    <span id="block-height">#0</span>
+                </div>
+                <div>
+                    <span>运行时间:</span>
+                    <span id="uptime">0天 0小时</span>
+                </div>
+                <div>
+                    <span>版本:</span>
+                    <span>v2.1.4</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 总览页面 -->
+            <div id="overview-page" data-page="overview">
+                <div class="header">
+                    <h2>网络总览</h2>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="搜索区块、交易或节点..." id="search-input">
+                    </div>
+                </div>
+                
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="active-peers">0</div>
+                                <div class="stat-label">活跃节点</div>
+                            </div>
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="peers-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="block-count">0</div>
+                                <div class="stat-label">区块高度</div>
+                            </div>
+                            <i class="fas fa-cubes"></i>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="blocks-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="pending-txs">0</div>
+                                <div class="stat-label">待处理交易</div>
+                            </div>
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="txs-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-value" id="network-throughput">0 MB/s</div>
+                                <div class="stat-label">网络吞吐量</div>
+                            </div>
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="throughput-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">最新区块</div>
+                            <button class="btn" id="refresh-blocks">刷新</button>
+                        </div>
+                        <div class="block-list" id="blocks-list">
+                            <div class="block-row">
+                                <div class="block-icon">
+                                    <i class="fas fa-cube"></i>
+                                </div>
+                                <div class="block-info">
+                                    <div>加载区块数据中...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">节点状态</div>
+                            <button class="btn refresh-btn" id="refresh-peers">
+                                <span class="loading" style="display: none;"></span>刷新
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                       <th>节点ID</th>
+                                       <th>IP地址</th>
+                                       <th>端口</th>
+                                       <th>状态</th>
+                                       <th>延迟</th>
+                                       <th>类型</th>
+                                       <th>NAT状态</th>
+                                       <th>本地网络</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="peers-table">
+                                    <tr>
+                                        <td colspan="8" style="text-align: center;">加载节点数据中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">网络性能</div>
+                        <div>
+                            <button class="btn active" id="latency-btn" style="margin-right: 10px;">延迟</button>
+                            <button class="btn" id="throughput-btn">吞吐量</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="networkChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">近期交易</div>
+                            <button class="btn" id="refresh-txs">刷新</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>交易ID</th>
+                                    <th>金额</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-table">
+                                <tr>
+                                    <td colspan="3" style="text-align: center;">加载交易数据中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">待发送消息</div>
+                            <button class="btn" id="refresh-outbox">刷新</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>目标节点</th>
+                                    <th>优先级</th>
+                                    <th>消息数</th>
+                                </tr>
+                            </thead>
+                            <tbody id="outbox-table">
+                                <tr>
+                                    <td colspan="3" style="text-align: center;">加载消息队列数据中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 区块浏览器页面 -->
+            <div id="blocks-page" style="display: none;" data-page="blocks">
+                <div class="header">
+                    <h2>区块浏览器</h2>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">区块链视图</div>
+                        <button class="btn" id="refresh-blocks-tree">刷新</button>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="block-search-tree" placeholder="输入区块ID或交易ID...">
+                        <button id="search-block-btn-tree">搜索</button>
+                    </div>
+
+                    <div id="blocks-tree-container">
+                        <div class="loading-block">
+                            <div class="block-row">
+                                <div class="block-icon">
+                                    <i class="fas fa-cube"></i>
+                                </div>
+                                <div class="block-info">
+                                    <div>加载区块树结构中...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="outbox-page" style="display: none;" data-page="outbox">
+                <div class="header">
+                    <h2>消息队列</h2>
+                    <button class="btn" id="refresh-outbox-detailed-view">刷新</button> <!-- 刷新按钮ID更新 -->
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">选择节点</div>
+                        <select id="outbox-peer-select" class="btn" style="min-width: 150px;"></select> <!-- ID更新 -->
+                    </div>
+                    <div id="outbox-message-list-container"> <!-- ID更新 -->
+                        <div class="empty-message">请选择一个节点以查看其消息队列详情。</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他页面占位符 -->
+            <div id="peers-page" style="display: none;" data-page="peers">
+                 <div class="header"><h2>节点监控</h2></div>
+                 <div class="card"><p>节点监控内容将显示在这里。</p></div>
+            </div>
+            <div id="transactions-page" style="display: none;" data-page="transactions">
+                <div class="header"><h2>交易池</h2></div>
+                <div class="card"><p>交易池内容将显示在这里。</p></div>
+            </div>
+            <div id="performance-page" style="display: none;" data-page="performance">
+                <div class="header"><h2>网络性能</h2></div>
+                <div class="card"><p>网络性能图表和数据将显示在这里。</p></div>
+            </div>
+            <div id="settings-page" style="display: none;" data-page="settings">
+                <div class="header"><h2>设置</h2></div>
+                <div class="card"><p>配置设置将显示在这里。</p></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
