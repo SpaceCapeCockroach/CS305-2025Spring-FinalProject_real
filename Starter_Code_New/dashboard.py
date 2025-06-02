@@ -133,12 +133,13 @@ def peers():
         ip, port = known_peers_ref.get(peer_id, ("unknown", "unknown"))
         flags = peer_flags.get(peer_id, {})
         status = peer_status.get(peer_id, "UNREACHABLE")
-        localnetwork_id= peer_config.get(peer_id, {}).get("localnetworkid", "unknown")
+        localnetwork_id= peer_config.get(peer_id, {}).get("localnetworkid", "public")
         
         if not localnetwork_id:
-            localnetwork_id = "unknown"
+            localnetwork_id = "public"
         
         # 构建节点信息字典
+        current_rtt = sum(rtt_tracker.get(peer_id, [1000])) / len(rtt_tracker.get(peer_id, [1000])) if peer_status.get(peer_id) == "ALIVE" else 0
         peer_data = {
             "peer_id": peer_id,
             "ip": ip,
@@ -146,7 +147,7 @@ def peers():
             "status": status,
             "NATed": flags.get("nat", False),
             "type": "lightweight" if flags.get("light", False) else "full",
-            "latency": f"{rtt_tracker.get(peer_id, 0):.2f}ms",
+            "latency": f"{current_rtt:.2f}ms",
             "localnetworkid": localnetwork_id
         }
         
@@ -167,8 +168,9 @@ def latency():
     #pass
     # 展示节点间的延迟
     latency_info = []
-    for peer_id, rtt in rtt_tracker.items():
-        latency_info.append({"peer_id": peer_id, "latency_ms": rtt})
+    for peer in rtt_tracker:
+        current_rtt = sum(rtt_tracker.get(peer, [1000])) / len(rtt_tracker.get(peer, [1000]))
+        latency_info.append({"peer_id": peer, "latency_ms": current_rtt})
     return jsonify(latency_info)
 
 @app.route('/capacity')

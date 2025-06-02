@@ -38,12 +38,12 @@ priority_order = {
     "BLOCK": 1,
     "TX": 1,
     "PING": 1,
-    "PONG": 2,
+    "PONG": 1,
     "HELLO": 2,
     "BLOCK_HEADERS": 2,
     "INV": 2,
-    "GET_BLOCK_HEADERS": 2,
-    "GET_BLOCK": 1,
+    "GET_BLOCK_HEADERS": 1,
+    "GET_BLOCK": 2,
     "RELAY": 2,
 }
 
@@ -140,13 +140,7 @@ def is_rate_limited(peer_id):
 def classify_priority(message_type):
     # TODO: Classify the priority of a message based on the message type.
     # pass
-    return priority_order.get(message_type, 10)  # 默认低优先级为3
-    # if message in PRIORITY_HIGH:
-    #     return 1
-    # elif message in PRIORITY_MEDIUM:
-    #     return 2
-    # else:
-    #     return 3  # 默认低优先级
+    return priority_order.get(message_type, 3)  # 默认低优先级为3
     
 
 def send_from_queue(self_id):
@@ -222,15 +216,11 @@ def relay_or_direct_send(self_id, dst_id, message):
   
     # TODO: If the target peer is non-NATed, send the message to the target peer using the function `send_message`.
 
-    # pass
-    # 检查目标是否NAT
-    # print(f"[debug]Sending message to {dst_id} from {self_id} - Message: {message}")
 
-    # direct = peer_config.get(self_id,{}).get("localnetworkid",None)==peer_config.get(dst_id,{}).get("localnetworkid",None) or (not peer_flags.get(dst_id, {}).get("nat", False) and not peer_flags.get(self_id, {}).get("nat", False)) 
-    # if not direct:
     if not is_reachable(self_id, dst_id):
-        relay_peer = get_relay_peer(self_id, dst_id)
-        if relay_peer:
+        sender_id = json.loads(message).get("sender", self_id)
+        relay_peer = get_relay_peer(self_id, dst_id,sender_id)
+        if relay_peer:                
             relay_msg = {
                 "type": "RELAY",
                 "sender": self_id,
@@ -246,7 +236,7 @@ def relay_or_direct_send(self_id, dst_id, message):
         # 直接发送
         return send_message(known_peers[dst_id][0], known_peers[dst_id][1], message)
         
-def get_relay_peer(self_id, dst_id):
+def get_relay_peer(self_id, dst_id,sender_id):
     from peer_manager import  rtt_tracker ,Lock
     from peer_discovery import known_peers, reachable_by 
 
@@ -261,9 +251,11 @@ def get_relay_peer(self_id, dst_id):
     min_rtt = float('inf')
 
     for peer in candidates:
+        if peer == sender_id:
+            continue
         with Lock:
-            # current_rtt = rtt_tracker.get(peer, 1000)  # 默认1秒
-            current_rtt = sum(rtt_tracker.get(peer, [1000])) / len(rtt_tracker.get(peer, [1000]))
+            # current_rtt = rtt_tracker.get(peer, 2000)  # 默认2秒
+            current_rtt = sum(rtt_tracker.get(peer, [2000])) / len(rtt_tracker.get(peer, [2000]))
         if current_rtt < min_rtt:
             min_rtt = current_rtt
             best_peer = peer
@@ -289,6 +281,7 @@ def apply_network_conditions(send_func):
 
         # TODO: Send the message using the function `send_func`.
         # pass
+
         # 速率限制检查
         # if not rate_limiter.allow():
         #     msg_type = json.loads(message).get("type", "OTHER")
@@ -334,13 +327,8 @@ def send_message(ip, port, message):
             else:
                 serialized_msg = message.encode('utf-8')
 
-            # serialized_msg = message.encode('utf-8')
             s.sendall(serialized_msg)
             
-            # 可选：等待ACK确认（根据协议设计）
-            # ack = s.recv(1024)
-            # if ack != b'ACK':
-            #     return False
             
             return True
     except (socket.timeout, ConnectionRefusedError, OSError) as e:
