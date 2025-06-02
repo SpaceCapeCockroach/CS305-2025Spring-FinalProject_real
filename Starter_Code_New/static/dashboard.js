@@ -5,9 +5,10 @@ export let startTime = Date.now();
 export let elements; 
 
 // Import functions from other modules
-import { fetchPeersData, fetchBlocksData, fetchTransactionsData, fetchOutboxData, fetchNetworkPerformanceRawData } from './api.js';
-import { initUI, updateUptime, updatePeersUI, updateBlocksUI, updateTransactionsUI, updateOutboxUI, setupPageNavigationUI, updateNetworkThroughputUI, initializeOutboxDetailedView } from './ui.js'; 
-import { initNetworkChart, setChartMode, updateChartData } from './chart.js';
+import { fetchPeersData, fetchBlocksData, fetchTransactionsData, fetchOutboxData, fetchNetworkPerformanceRawData, fetchOrphanBlocksData } from './api.js'; 
+import { initUI, updateUptime, updatePeersUI, updateBlocksUI, updateTransactionsUI, updateOutboxUI, setupPageNavigationUI, updateNetworkThroughputUI, initializeOutboxDetailedView, initializeOrphanBlocksPage } from './ui.js'; 
+// <-- 关键修改：chart.js 的导入，不再需要 setChartMode
+import { initNetworkChart, updateChartData } from './chart.js'; 
 import { renderBlockTree, extractAndSortBlocksFromTree } from './blockTree.js';
 
 /**
@@ -32,7 +33,8 @@ async function fetchDashboardData() {
     if (transactions) updateTransactionsUI(transactions, elements);
     if (outbox) updateOutboxUI(outbox, elements); 
     if (networkPerf) {
-        updateChartData(networkPerf.latencyData, networkPerf.throughputData);
+        // 关键修改：只传递吞吐量数据给图表更新
+        updateChartData(networkPerf.throughputData); 
         updateNetworkThroughputUI(networkPerf.throughputValue, elements);
     }
 }
@@ -83,27 +85,32 @@ document.addEventListener('DOMContentLoaded', () => {
         blocksList: document.getElementById('blocks-list'),
         peersTable: document.getElementById('peers-table'),
         transactionsTable: document.getElementById('transactions-table'),
-        outboxTable: document.getElementById('outbox-table'), // 总览页的 outbox table
+        outboxTable: document.getElementById('outbox-table'), 
         
         refreshBlocksBtn: document.getElementById('refresh-blocks'),
         refreshPeersBtn: document.getElementById('refresh-peers'),
         refreshTxsBtn: document.getElementById('refresh-txs'),
-        refreshOutboxBtn: document.getElementById('refresh-outbox'), // 总览页的 outbox refresh
+        refreshOutboxBtn: document.getElementById('refresh-outbox'), 
         refreshBlocksTreeBtn: document.getElementById('refresh-blocks-tree'),
         
-        refreshOutboxDetailedViewBtn: document.getElementById('refresh-outbox-detailed-view'), // 消息队列页的刷新按钮
-        outboxPeerSelect: document.getElementById('outbox-peer-select'), // 消息队列页的 peer 选择
-        outboxMessageListContainer: document.getElementById('outbox-message-list-container'), // 消息队列页的消息列表容器
+        refreshOutboxDetailedViewBtn: document.getElementById('refresh-outbox-detailed-view'), 
+        outboxPeerSelect: document.getElementById('outbox-peer-select'), 
+        outboxMessageListContainer: document.getElementById('outbox-message-list-container'), 
         
-        latencyBtn: document.getElementById('latency-btn'),
-        throughputBtn: document.getElementById('throughput-btn'),
-
+        orphanBlocksPage: document.getElementById('orphan-blocks-page'),
+        refreshOrphanBlocksBtn: document.getElementById('refresh-orphan-blocks'),
+        orphanBlocksListContainer: document.getElementById('orphan-blocks-list-container'),
+        
+        // 关键修改：移除 latencyBtn
+        // latencyBtn: document.getElementById('latency-btn'),
+        throughputBtn: document.getElementById('throughput-btn'), // 吞吐量按钮保留
+        
         overviewPage: document.getElementById('overview-page'),
         blocksPage: document.getElementById('blocks-page'),
         peersPage: document.getElementById('peers-page'),
         transactionsPage: document.getElementById('transactions-page'),
         performancePage: document.getElementById('performance-page'),
-        outboxPage: document.getElementById('outbox-page'), // 消息队列页面容器 (现在是详细视图)
+        outboxPage: document.getElementById('outbox-page'), 
         settingsPage: document.getElementById('settings-page'),
         
         blocksTreeContainer: document.getElementById('blocks-tree-container'),
@@ -115,9 +122,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize UI components by passing necessary elements and global state
     initUI(elements, peerId, startTime); 
+    // 关键修改：初始化图表时，不再需要 setChartMode
     initNetworkChart(elements.networkChart); 
-    // <--- 关键修改：传递 initializeOutboxDetailedView 给导航设置
-    setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initializeOutboxDetailedView); 
+    setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initializeOutboxDetailedView, initializeOrphanBlocksPage); 
 
     // Set up event listeners for refresh buttons
     elements.refreshBlocksBtn.addEventListener('click', () => fetchDashboardData().then(() => console.log('Blocks refreshed')));
@@ -136,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.refreshTxsBtn.addEventListener('click', () => fetchDashboardData().then(() => console.log('Transactions refreshed')));
     elements.refreshOutboxBtn.addEventListener('click', () => fetchDashboardData().then(() => console.log('Outbox refreshed'))); 
     
-    // <-- 关键修改：消息队列详细视图页面的刷新按钮监听器
+    // 消息队列详细视图页面的刷新按钮监听器
     if (elements.refreshOutboxDetailedViewBtn) {
         elements.refreshOutboxDetailedViewBtn.addEventListener('click', () => initializeOutboxDetailedView(elements));
     }
@@ -146,20 +153,30 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.refreshBlocksTreeBtn.addEventListener('click', fetchAndRenderBlocksTree);
     }
 
-    // Event listeners for chart mode buttons (Latency/Throughput)
-    elements.latencyBtn.addEventListener('click', () => setChartMode('latency', elements.latencyBtn, elements.throughputBtn));
-    elements.throughputBtn.addEventListener('click', () => setChartMode('throughput', elements.latencyBtn, elements.throughputBtn));
+    // 孤儿块页面的刷新按钮监听器
+    if (elements.refreshOrphanBlocksBtn) {
+        elements.refreshOrphanBlocksBtn.addEventListener('click', () => initializeOrphanBlocksPage(elements));
+    }
+
+    // 关键修改：移除 latencyBtn 的事件监听器
+    // if (elements.latencyBtn) {
+    //     elements.latencyBtn.addEventListener('click', () => setChartMode('latency', elements.latencyBtn, elements.throughputBtn));
+    // }
+    // 吞吐量按钮的事件监听器，如果它是唯一的，可以简化或移除 setChartMode
+    if (elements.throughputBtn) {
+        elements.throughputBtn.addEventListener('click', () => updateChartData(elements.networkChart.data.datasets[0].data)); // 强制更新图表为吞吐量模式
+    }
+
 
     // Global search input functionality
-    if (elements.searchInput) { // Add a check for elements.searchInput
+    if (elements.searchInput) { 
         elements.searchInput.addEventListener('keyup', function(e) {
             if (e.key === 'Enter') {
                 const query = this.value.trim();
-                if (query) alert(`全局搜索: ${query}`); // Placeholder for actual search logic
+                if (query) alert(`全局搜索: ${query}`); 
             }
         });
     }
-
 
     // Block tree search input functionality
     if (elements.blockTreeSearchInput && elements.blockTreeSearchBtn) { 
@@ -178,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial data fetch when the dashboard loads
     fetchDashboardData();
     // Set up periodic data refresh for the overview page
-    setInterval(fetchDashboardData, 30000); // Refresh all data every 30 seconds
+    setInterval(fetchDashboardData, 30000); 
     // Update uptime display every minute
     setInterval(() => updateUptime(startTime, elements.uptime), 60000);
 });

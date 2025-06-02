@@ -1,8 +1,9 @@
 // chart.js
 let networkChart;
-let chartMode = 'latency'; // 'latency' or 'throughput'
-let latencyDataPoints = []; // Stores raw latency data points for aggregation
-let throughputDataPoints = []; // Stores raw throughput data points for aggregation
+// 关键修改：不再需要 chartMode 或 latencyDataPoints
+// let chartMode = 'latency'; // 'latency' or 'throughput'
+// let latencyDataPoints = []; 
+let throughputDataPoints = []; // 只保留吞吐量数据点
 
 /**
  * Initializes the Chart.js instance for network performance.
@@ -15,40 +16,33 @@ export function initNetworkChart(canvasElement) {
     networkChart = new Chart(ctx, {
         type: 'line',
         data: {
-            // Initialize labels for the last 12 intervals (e.g., 30 seconds apart)
             labels: Array(12).fill("").map((_, i) => { 
-                const d = new Date(Date.now() - (11-i) * 30000); // Backwards in time
+                const d = new Date(Date.now() - (11-i) * 30000); 
                 return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
             }),
             datasets: [{
-                label: '平均延迟 (ms)',
-                data: [], // Initial empty data
-                borderColor: rootStyles.getPropertyValue('--highlight').trim(),
-                backgroundColor: 'rgba(233, 69, 96, 0.1)', 
-                tension: 0.4, // Smooth curve
+                label: '吞吐量 (MB/s)', // 关键修改：默认只显示吞吐量
+                data: [], 
+                borderColor: rootStyles.getPropertyValue('--success').trim(), // 吞吐量使用绿色
+                backgroundColor: 'rgba(74, 222, 128, 0.1)', 
+                tension: 0.4,
                 fill: true,
                 pointRadius: 3,
-                pointBackgroundColor: rootStyles.getPropertyValue('--highlight').trim()
+                pointBackgroundColor: rootStyles.getPropertyValue('--success').trim()
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { 
-                legend: { 
-                    labels: { 
-                        color: rootStyles.getPropertyValue('--text').trim() // Legend text color
-                    } 
-                } 
-            },
+            plugins: { legend: { labels: { color: rootStyles.getPropertyValue('--text').trim() } } },
             scales: {
                 x: { 
-                    grid: { color: rootStyles.getPropertyValue('--border').trim() }, // X-axis grid color
-                    ticks: { color: rootStyles.getPropertyValue('--text-secondary').trim(), maxRotation: 30, minRotation: 30 } // X-axis tick color
+                    grid: { color: rootStyles.getPropertyValue('--border').trim() }, 
+                    ticks: { color: rootStyles.getPropertyValue('--text-secondary').trim(), maxRotation: 30, minRotation: 30 } 
                 },
                 y: { 
-                    grid: { color: rootStyles.getPropertyValue('--border').trim() }, // Y-axis grid color
-                    ticks: { color: rootStyles.getPropertyValue('--text-secondary').trim() }, // Y-axis tick color
+                    grid: { color: rootStyles.getPropertyValue('--border').trim() }, 
+                    ticks: { color: rootStyles.getPropertyValue('--text-secondary').trim() }, 
                     beginAtZero: true 
                 }
             }
@@ -57,66 +51,45 @@ export function initNetworkChart(canvasElement) {
 }
 
 /**
- * Sets the chart display mode (latency or throughput) and updates button styles.
- * @param {string} mode - The desired chart mode ('latency' or 'throughput').
- * @param {HTMLElement} latencyBtn - The DOM element for the latency button.
- * @param {HTMLElement} throughputBtn - The DOM element for the throughput button.
+ * 关键修改：移除 setChartMode 函数，因为不再需要切换模式。
+ * 如果您希望吞吐量按钮仍然能“刷新”图表，可以将其事件监听器直接绑定到 updateChartData。
  */
-export function setChartMode(mode, latencyBtn, throughputBtn) {
-    chartMode = mode;
-    latencyBtn.classList.toggle('active', mode === 'latency');
-    throughputBtn.classList.toggle('active', mode === 'throughput');
-    updateChartData(); // Force chart update to reflect the new mode immediately
-}
+// export function setChartMode(mode, latencyBtn, throughputBtn) {
+//     chartMode = mode;
+//     latencyBtn.classList.toggle('active', mode === 'latency');
+//     throughputBtn.classList.toggle('active', mode === 'throughput');
+//     updateChartData(true); 
+// }
 
 /**
- * Updates the chart's data and labels based on the current chart mode and new data points.
- * This function is called periodically to append new data.
- * @param {Array<number>} newLatencyData - An array of new latency values (in ms) to add.
+ * Updates the chart's data and labels, now specifically for throughput.
  * @param {Array<number>} newThroughputData - An array of new throughput values (in MB/s) to add.
  */
-export function updateChartData(newLatencyData = [], newThroughputData = []) {
-    if (!networkChart) return; // Ensure chart is initialized
+export function updateChartData(newThroughputData = []) { // 关键修改：只接受吞吐量数据
+    if (!networkChart) return;
 
-    // Accumulate new data points into internal arrays
-    latencyDataPoints.push(...newLatencyData);
     throughputDataPoints.push(...newThroughputData);
 
-    const rootStyles = getComputedStyle(document.documentElement);
     const now = new Date();
-    // Generate a new label for the current time point
     const newLabel = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
 
-    // Shift labels if the chart has reached its maximum data points
     if (networkChart.data.labels.length >= 12) {
         networkChart.data.labels.shift();
     }
-    networkChart.data.labels.push(newLabel); // Add the new label
+    networkChart.data.labels.push(newLabel);
 
-    if (chartMode === 'latency') {
-        // Calculate average latency from accumulated points
-        const avgLatency = latencyDataPoints.length > 0 ? latencyDataPoints.reduce((a,b)=>a+b,0) / latencyDataPoints.length : 0;
-        if (networkChart.data.datasets[0].data.length >= 12) {
-            networkChart.data.datasets[0].data.shift();
-        }
-        networkChart.data.datasets[0].data.push(avgLatency); // Add the new data point
-        networkChart.data.datasets[0].label = '平均延迟 (ms)';
-        networkChart.data.datasets[0].borderColor = rootStyles.getPropertyValue('--highlight').trim();
-        networkChart.data.datasets[0].backgroundColor = 'rgba(233, 69, 96, 0.1)';
-        networkChart.data.datasets[0].pointBackgroundColor = rootStyles.getPropertyValue('--highlight').trim();
-        latencyDataPoints = []; // Clear accumulated points for the next interval
-    } else { // chartMode === 'throughput'
-        // Calculate average throughput from accumulated points
-        const avgThroughput = throughputDataPoints.length > 0 ? throughputDataPoints.reduce((a,b)=>a+b,0) / throughputDataPoints.length : 0;
-         if (networkChart.data.datasets[0].data.length >= 12) {
-            networkChart.data.datasets[0].data.shift();
-        }
-        networkChart.data.datasets[0].data.push(avgThroughput); // Add the new data point
-        networkChart.data.datasets[0].label = '吞吐量 (MB/s)';
-        networkChart.data.datasets[0].borderColor = rootStyles.getPropertyValue('--success').trim();
-        networkChart.data.datasets[0].backgroundColor = 'rgba(74, 222, 128, 0.1)';
-        networkChart.data.datasets[0].pointBackgroundColor = rootStyles.getPropertyValue('--success').trim();
-        throughputDataPoints = []; // Clear accumulated points for the next interval
+    const avgThroughput = throughputDataPoints.length > 0 ? throughputDataPoints.reduce((a,b)=>a+b,0) / throughputDataPoints.length : 0;
+     if (networkChart.data.datasets[0].data.length >= 12) {
+        networkChart.data.datasets[0].data.shift();
     }
-    networkChart.update('none'); // Update the chart without animation
+    networkChart.data.datasets[0].data.push(avgThroughput);
+    // 关键修改：标签和颜色固定为吞吐量
+    networkChart.data.datasets[0].label = '吞吐量 (MB/s)';
+    const rootStyles = getComputedStyle(document.documentElement);
+    networkChart.data.datasets[0].borderColor = rootStyles.getPropertyValue('--success').trim();
+    networkChart.data.datasets[0].backgroundColor = 'rgba(74, 222, 128, 0.1)';
+    networkChart.data.datasets[0].pointBackgroundColor = rootStyles.getPropertyValue('--success').trim();
+    throughputDataPoints = []; 
+    
+    networkChart.update('none'); 
 }

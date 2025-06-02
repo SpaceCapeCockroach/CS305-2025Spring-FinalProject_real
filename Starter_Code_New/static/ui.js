@@ -1,11 +1,8 @@
 // ui.js
 
 // 导入必要的API函数
-import { fetchOutboxData } from './api.js'; 
-// 如果您在其他地方（例如 initializeOutboxDetailedView 中）需要获取所有peer的列表，
-// 并且不依赖于 outboxDataContainer 中的peer_id，您可能还需要导入 fetchPeersData。
-// 但根据当前逻辑，outboxDataContainer 已经包含了 peerId，所以暂时不需要。
-// import { fetchPeersData } from './api.js'; 
+import { fetchOutboxData, fetchOrphanBlocksData } from './api.js'; // <-- 确保导入 fetchOrphanBlocksData
+import { renderBlockTree } from './blockTree.js'; // 导入 renderBlockTree，用于孤儿块的样式复用
 
 /**
  * Initializes UI elements with initial values.
@@ -35,9 +32,10 @@ export function updateUptime(startTime, uptimeElement) {
  * Sets up page navigation logic.
  * @param {object} elements - Object containing references to DOM elements.
  * @param {function} fetchAndRenderBlocksTree - Callback function to load/render blocks tree when its page is active.
- * @param {function} initializeOutboxDetailedView - Callback function to initialize the dedicated outbox detailed view. // <-- 新增参数
+ * @param {function} initializeOutboxDetailedView - Callback function to initialize the dedicated outbox detailed view.
+ * @param {function} initializeOrphanBlocksPage - Callback function to initialize the orphan blocks page. // <-- 新增参数
  */
-export function setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initializeOutboxDetailedView) { // <-- 更新函数签名
+export function setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initializeOutboxDetailedView, initializeOrphanBlocksPage) { // <-- 更新函数签名
     const pageElements = {
         overview: elements.overviewPage,
         blocks: elements.blocksPage,
@@ -45,8 +43,7 @@ export function setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initia
         transactions: elements.transactionsPage,
         performance: elements.performancePage,
         outbox: elements.outboxPage, // 消息队列页面容器 (现在是详细视图)
-        // 移除 message_details
-        // message_details: elements.messageDetailsPage,
+        orphan_blocks: elements.orphanBlocksPage, // <-- 新增
         settings: elements.settingsPage
     };
 
@@ -92,11 +89,17 @@ export function setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initia
                     } else {
                         console.error("Block tree container not found for section 'blocks'");
                     }
-                } else if (section === 'outbox') { // <-- 关键修改：当点击“消息队列”时，初始化详细视图
+                } else if (section === 'outbox') { 
                     if (initializeOutboxDetailedView) { 
-                        initializeOutboxDetailedView(elements); // 调用新的详细视图初始化函数
+                        initializeOutboxDetailedView(elements); 
                     } else {
                         console.error("initializeOutboxDetailedView function not passed or found.");
+                    }
+                } else if (section === 'orphan-blocks') { // <-- 新增：处理孤儿块页面激活
+                    if (initializeOrphanBlocksPage) {
+                        initializeOrphanBlocksPage(elements);
+                    } else {
+                        console.error("initializeOrphanBlocksPage function not passed or found.");
                     }
                 }
             } else {
@@ -485,6 +488,111 @@ function renderMessageCard(message, targetIp, targetPort, container, priority) {
     });
 
     container.appendChild(card);
+}
+
+/**
+ * Initializes the Orphan Blocks page: fetches data and renders the list of orphan blocks.
+ * @param {object} elements - Object containing references to DOM elements.
+ */
+export async function initializeOrphanBlocksPage(elements) {
+    const container = elements.orphanBlocksListContainer;
+    if (!container) {
+        console.error("Orphan blocks list container not found in DOM.");
+        return;
+    }
+
+    container.innerHTML = `<div class="loading-block">
+                            <div class="block-row">
+                                <div class="block-icon"><i class="fas fa-cube"></i></div>
+                                <div class="block-info"><div>加载孤儿块数据中...</div></div>
+                            </div>
+                          </div>`;
+    try {
+        const orphanBlocksData = await fetchOrphanBlocksData();
+        renderOrphanBlocks(orphanBlocksData, container);
+    } catch (error) {
+        console.error('获取孤儿块数据失败:', error);
+        container.innerHTML = `<div class="empty-message">无法加载孤儿块数据. Error: ${error.message}</div>`;
+    }
+}
+
+/**
+ * Renders the list of orphan blocks.
+ * @param {Array<object>} orphanBlocks - Array of orphan block data.
+ * @param {HTMLElement} container - The DOM element to render the blocks into.
+ */
+function renderOrphanBlocks(orphanBlocks, container) {
+    if (!Array.isArray(orphanBlocks) || orphanBlocks.length === 0) {
+        container.innerHTML = '<div class="empty-message">无孤儿块数据。</div>';
+        return;
+    }
+
+    container.innerHTML = ''; // Clear previous content
+
+    orphanBlocks.forEach(orphanBlock => {
+        const blockNode = document.createElement('div');
+        blockNode.className = 'block-node'; // 复用 blockTree 的样式
+
+        const blockHeader = document.createElement('div');
+        blockHeader.className = 'block-header';
+        blockNode.appendChild(blockHeader);
+
+        const toggleIcon = document.createElement('div');
+        toggleIcon.className = 'toggle-icon';
+        toggleIcon.innerHTML = '<i class="fas fa-plus"></i>'; // 默认折叠
+        blockHeader.appendChild(toggleIcon);
+
+        const indicator = document.createElement('div');
+        indicator.className = 'block-indicator';
+        indicator.style.backgroundColor = 'var(--danger)'; // 孤儿块用红色指示
+        blockHeader.appendChild(indicator);
+
+        const blockInfo = document.createElement('div');
+        blockInfo.className = 'block-info';
+        blockHeader.appendChild(blockInfo);
+
+        const blockId = document.createElement('div');
+        blockId.className = 'block-id';
+        blockId.textContent = `孤儿块 ID: ${orphanBlock.block_id ? orphanBlock.block_id.substring(0,12) + '...' : 'N/A'}`;
+        blockId.title = orphanBlock.block_id || 'N/A';
+        blockInfo.appendChild(blockId);
+        
+        const prevIdDisplay = (orphanBlock.prev_id === "0000000000000000000000000000000000000000000000000000000000000000" || orphanBlock.prev_id === "000000") 
+                                ? '创世块' 
+                                : (orphanBlock.prev_id ? orphanBlock.prev_id.substring(0,12) + '...' : 'N/A');
+
+        const blockHash = document.createElement('div'); 
+        blockHash.className = 'block-hash'; 
+        blockHash.textContent = `父区块: ${prevIdDisplay}`;
+        blockHash.title = orphanBlock.prev_id || 'N/A';
+        blockInfo.appendChild(blockHash);
+
+        const detailsContainer = document.createElement('div');
+        detailsContainer.className = 'block-details'; // 复用 blockTree 的样式
+        detailsContainer.style.display = 'none'; // 默认隐藏
+        blockNode.appendChild(detailsContainer);
+
+        // Add details for orphan block
+        const timestampInfo = document.createElement('div');
+        timestampInfo.className = 'detail-row';
+        const time = orphanBlock.timestamp ? new Date(orphanBlock.timestamp * 1000).toLocaleString() : 'N/A';
+        timestampInfo.innerHTML = `<span class="detail-label">时间:</span><span class="detail-value">${time}</span>`;
+        detailsContainer.appendChild(timestampInfo);
+
+        const txCountInfo = document.createElement('div');
+        txCountInfo.className = 'detail-row';
+        txCountInfo.innerHTML = `<span class="detail-label">交易数:</span><span class="detail-value">${orphanBlock.tx_count != null ? orphanBlock.tx_count : 'N/A'}</span>`;
+        detailsContainer.appendChild(txCountInfo);
+
+        // Add click event listener to toggle details
+        blockHeader.addEventListener('click', function() {
+            const isVisible = detailsContainer.style.display === 'block';
+            detailsContainer.style.display = isVisible ? 'none' : 'block';
+            toggleIcon.innerHTML = isVisible ? '<i class="fas fa-plus"></i>' : '<i class="fas fa-minus"></i>';
+        });
+
+        container.appendChild(blockNode);
+    });
 }
 
 /**

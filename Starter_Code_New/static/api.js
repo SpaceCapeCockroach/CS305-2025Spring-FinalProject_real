@@ -49,7 +49,9 @@ export async function fetchTransactionsData() {
 export async function fetchOutboxData() {
     return fetchData('/outbox');
 }
-
+export async function fetchOrphanBlocksData() {
+    return fetchData('/orphans');
+}
 /**
  * Fetches raw network performance data (latency and throughput).
  * @returns {Promise<{latencyData: Array<number>, throughputData: Array<number>, throughputValue: number}>}

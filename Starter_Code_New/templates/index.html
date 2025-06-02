@@ -42,6 +42,11 @@
                     <i class="fas fa-envelope"></i>
                     <span>消息队列</span>
                 </div>
+                <!-- 修正：孤儿块导航项移动到 nav-links 内部 -->
+                <div class="nav-item" data-section="orphan-blocks">
+                    <i class="fas fa-unlink"></i>
+                    <span>孤儿块</span>
+                </div>
                 <div class="nav-item" data-section="settings">
                     <i class="fas fa-cog"></i>
                     <span>设置</span>
@@ -186,9 +191,14 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">网络性能</div>
-                        <div>
+                        <!-- 移除：延迟按钮 -->
+                        <!-- <div>
                             <button class="btn active" id="latency-btn" style="margin-right: 10px;">延迟</button>
                             <button class="btn" id="throughput-btn">吞吐量</button>
+                        </div> -->
+                        <!-- 保持吞吐量按钮或直接移除，如果它是唯一的显示模式 -->
+                        <div>
+                            <button class="btn active" id="throughput-btn">吞吐量</button>
                         </div>
                     </div>
                     <div class="chart-container">
@@ -241,7 +251,7 @@
                 </div>
             </div>
 
-            <!-- 区块浏览器页面 -->
+            <!-- 区块浏览器页面 (保持不变) -->
             <div id="blocks-page" style="display: none;" data-page="blocks">
                 <div class="header">
                     <h2>区块浏览器</h2>
@@ -271,23 +281,50 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- 消息队列页面 (详细消息视图，保持不变) -->
             <div id="outbox-page" style="display: none;" data-page="outbox">
                 <div class="header">
                     <h2>消息队列</h2>
-                    <button class="btn" id="refresh-outbox-detailed-view">刷新</button> <!-- 刷新按钮ID更新 -->
+                    <button class="btn" id="refresh-outbox-detailed-view">刷新</button>
                 </div>
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">选择节点</div>
-                        <select id="outbox-peer-select" class="btn" style="min-width: 150px;"></select> <!-- ID更新 -->
+                        <select id="outbox-peer-select" class="btn" style="min-width: 150px;"></select>
                     </div>
-                    <div id="outbox-message-list-container"> <!-- ID更新 -->
+                    <div id="outbox-message-list-container">
                         <div class="empty-message">请选择一个节点以查看其消息队列详情。</div>
                     </div>
                 </div>
             </div>
 
-            <!-- 其他页面占位符 -->
+            <!-- 修正：孤儿块页面移动到正确位置 (main-content 的直接子元素) -->
+            <div id="orphan-blocks-page" style="display: none;" data-page="orphan-blocks">
+                <div class="header">
+                    <h2>孤儿块</h2>
+                    <button class="btn" id="refresh-orphan-blocks">刷新</button>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">孤儿块列表</div>
+                    </div>
+                    <div id="orphan-blocks-list-container">
+                        <div class="loading-block">
+                            <div class="block-row">
+                                <div class="block-icon">
+                                    <i class="fas fa-cube"></i>
+                                </div>
+                                <div class="block-info">
+                                    <div>加载孤儿块数据中...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他页面占位符 (保持不变) -->
             <div id="peers-page" style="display: none;" data-page="peers">
                  <div class="header"><h2>节点监控</h2></div>
                  <div class="card"><p>节点监控内容将显示在这里。</p></div>
