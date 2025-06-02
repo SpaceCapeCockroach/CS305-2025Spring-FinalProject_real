@@ -36,8 +36,6 @@ def request_block_sync(self_id):
             "message_id": generate_message_id()
         }
 
-        # enqueue_message(target_id, ip, port, message)
-
 
         k_peers = known_peers.copy()  # Avoid modifying the dictionary while iterating
         for peer_id, (ip, port) in k_peers.items():
@@ -59,7 +57,6 @@ def block_generation(self_id, MALICIOUS_MODE, interval=100):
 
     # TODO: Broadcast the `INV` message to known peers using the function `gossip` in `outbox.py`.
 
-        # DIFFICULTY = 4  # 工作量证明难度（前导零数）
         
         while True:
             # 生成候选区块
@@ -69,19 +66,11 @@ def block_generation(self_id, MALICIOUS_MODE, interval=100):
                 time.sleep(interval)
                 continue
             
-            # with block_lock:
-            #     header_store.append({
-            #         'hash': block['block_id'],
-            #         'timestamp': block['timestamp'],
-            #         'tx_count': len(block['tx_list']),
-            #         'prev_hash': block['prev_id']
-            #     })
 
 
             handle_block(json.dumps(block), self_id)
 
             # 广播新区块
-            # if 'block_id' in block:
             inv_msg = create_inv(self_id, [block['block_id']])
             gossip_message(self_id,json.dumps(inv_msg))
             print(f"生成新区块 #{len(received_blocks)} | Hash: {block['block_id'][:16]}...")
@@ -149,11 +138,6 @@ def handle_block(msg, self_id):
     # TODO: Check if the block is the previous block of blocks in `orphan_blocks`. If yes, add the orphaned blocks to the local blockchain.
     # pass
     try:
-        # if(self_id == 'system'):
-        #     # 系统消息，直接处理
-            
-        #     pass
-
         block = json.loads(msg)
         sender_id = block.get('sender')
             
@@ -173,9 +157,10 @@ def handle_block(msg, self_id):
                 print(f"重复区块: {block['block_id'][:8]}")
                 return
             # 主链连接检查
-            if  block['prev_id'] == '0'*64 :
+            if  block['prev_id'] == '0'*64 or block['prev_id'] in current_blocks:
 
                 if not sender_id == self_id:
+                    # 如果不是自己创建的区块，打印接收信息
                     print(f"接收到由{sender_id}创建的新区块 | 前哈希: {block['prev_id'][:8]}...")
                     # 创建INV广播
                     inv_msg = create_inv(self_id, [block["block_id"]])
@@ -183,18 +168,6 @@ def handle_block(msg, self_id):
 
                 add_to_chain(block,self_id)
                 check_orphans(block['block_id'])
-
-            
-            elif block['prev_id'] in current_blocks:
-                 
-                 if not sender_id == self_id:
-                    print(f"接收到由{sender_id}创建的新区块 | 前哈希: {block['prev_id'][:8]}...")
-                    # 创建INV广播
-                    inv_msg = create_inv(self_id, [block["block_id"]])
-                    gossip_message(self_id, json.dumps(inv_msg))
-
-                 add_to_chain(block,self_id)
-                 check_orphans(block['block_id'])
 
             else:
                 # 存入孤儿区块
@@ -208,8 +181,8 @@ def handle_block(msg, self_id):
 def add_to_chain(block,self_id):
     """添加区块到主链"""
     with block_lock:
-        if not peer_config.get(self_id, {}).get('light', False):
-            # 如果不是轻节点，添加到主链
+        if (not peer_config.get(self_id, {}).get('light', False)) or block['sender'] == self_id:
+            # 如果是不是轻节点，或者是自己创建的区块，添加到主链
             received_blocks.append(block)
             
         header_store.append({

@@ -46,7 +46,8 @@ class TransactionMessage:
             amount=data["amount"],
             timestamp=data["timestamp"]
         )
-    
+
+redundant_tx_cnt = 0  # Set to store IDs of redundant transactions
 tx_pool = [] # local transaction pool
 tx_ids = set() # the set of IDs of transactions in the local pool
 tx_lock = threading.Lock()  # Lock for thread-safe access to tx_pool and tx_ids
@@ -97,6 +98,8 @@ def add_transaction(tx):
     """添加交易到池（线程安全）"""
     with tx_lock:
         if tx.id in tx_ids:
+            global redundant_tx_cnt
+            redundant_tx_cnt += 1
             return False
         
         # 验证交易有效性

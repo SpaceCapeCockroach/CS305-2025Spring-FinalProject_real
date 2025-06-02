@@ -67,7 +67,9 @@ def handle_pong(msg):
         # 计算往返时间（RTT）
         rtt = (time.time() - original_ts) * 1000  # 转换为毫秒
         with Lock:
-            rtt_tracker[peer_id].append(rtt)
+            # rtt_tracker[peer_id].append(rtt)
+            rtt_tracker.setdefault(peer_id, []).append(rtt)
+            print(f'更新RTT from {peer_id}: {rtt_tracker[peer_id]} ms')
         
             # 更新最后活跃时间
             update_peer_heartbeat(peer_id)
@@ -110,10 +112,9 @@ def start_peer_monitor(self_id):
 def update_peer_heartbeat(peer_id):
     # TODO: Update the `last_ping_time` of a peer when receiving its `ping` or `pong` message.
     # pass
-    with Lock:
-        last_ping_time[peer_id] = time.time()
-        peer_status[peer_id] = 'ALIVE'
-        print(f'更新 {peer_id} 的心跳状态为 ALIVE，时间戳: {last_ping_time[peer_id]}')
+    last_ping_time[peer_id] = time.time()
+    peer_status[peer_id] = 'ALIVE'
+    print(f'更新 {peer_id} 的心跳状态为 ALIVE，时间戳: {last_ping_time[peer_id]}')
 
 
 # === Blacklist Logic ===

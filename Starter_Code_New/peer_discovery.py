@@ -23,6 +23,24 @@ def is_reachable(self_id, target_id):
         return True
     
     return False
+
+def create_hello_message(self_id, self_info):
+    return {
+            "type": "HELLO",
+            "sender": self_id,
+            "ip": self_info['ip'],
+            "port": self_info['port'],
+            "flags": {
+                "nat": peer_flags.get(self_id ,{}).get('nat', False),
+                "light": peer_flags.get(self_id ,{}).get('light', False)
+            },
+            "fanout": peer_config.get(self_id, {}).get('fanout', 0),  # 可选字段，fanout值
+            "localnetworkid": peer_config.get(self_id, {}).get('localnetworkid', None),
+            "relay":self_id,
+            "TTL": 3,  # 可选字段，TTL值
+            "message_id": generate_message_id()
+            }
+
 def start_peer_discovery(self_id, self_info):
     def loop():
         # TODO: Define the JSON format of a `hello` message, which should include: `{message type, sender’s ID, IP address, port, flags, and message ID}`. 
@@ -36,34 +54,16 @@ def start_peer_discovery(self_id, self_info):
         # pass
         # 1. 构造hello消息
         while True:
-            message = {
-                "type": "HELLO",
-                "sender": self_id,
-                "ip": self_info['ip'],
-                "port": self_info['port'],
-                "flags": {
-                    "nat": peer_flags.get(self_id ,{}).get('nat', False),
-                    "light": peer_flags.get(self_id ,{}).get('light', False)
-                },
-                "fanout": peer_config.get(self_id, {}).get('fanout', 0),  # 可选字段，fanout值
-                "localnetworkid": peer_config.get(self_id, {}).get('localnetworkid', None),
-                "relay":self_id,
-                "TTL": 3,  # 可选字段，TTL值
-                "message_id": generate_message_id()
-            }
-            # self_network_id = peer_config.get(self_id, {}).get('localnetworkid', None)
+            
+            message = create_hello_message(self_id, self_info)
             # 2. 发送给所有已知节点
             k_peers = known_peers.copy()  # 避免在迭代时修改字典
             for peer_id in k_peers:
                 peer_ip, peer_port = known_peers[peer_id]
                 if peer_id == self_id: continue  # 不发送给自己
-                # if not is_reachable(self_id, peer_id):
-                #     print(f"[debug]Peer {self_id} cannot reach {peer_id}, skipping hello message.")
-                #     continue
                 enqueue_message(
                     peer_id, peer_ip ,peer_port,json.dumps(message),
                 )
-                #print(f"[{self_id}][debug]Sent hello message to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
             time.sleep(60)
     threading.Thread(target=loop, daemon=True).start()
 
@@ -96,14 +96,6 @@ def handle_hello_message(msg, self_id):
         if data['TTL'] > 0:
             gossip_message(self_id, json.dumps(data))  # 转发hello消息
             
-            # for peer_id in known_peers:
-            #     #将helo转发给所有的已知节点
-            #     peer_ip, peer_port = known_peers[peer_id]
-            #     if peer_id == sender_id or peer_id == self_id: continue  # 不发送给发送方,不给自己发
-            #     enqueue_message(
-            #         peer_id, peer_ip ,peer_port,json.dumps(data),
-            #     )
-                #print(f"[{self_id}][relay_hello]Relay hello message from sender:{sender_id} to {peer_id} at {peer_ip}:{peer_port}!!!!!!")
         
         # 2. 处理新节点
        
@@ -121,6 +113,9 @@ def handle_hello_message(msg, self_id):
                 "localnetworkid": data.get('localnetworkid', None)
             }
             print(f"[{self_id}]New peer discovered: {sender_id}@{ip}:{port}")
+            print(f"[{self_id}]reply HELLO to {sender_id}")
+            re_hello = create_hello_message(self_id, peer_config[self_id])
+            enqueue_message(sender_id, ip, port, json.dumps(re_hello))  # 回复HELLO消息
         
         # 添加中间节点到reachable_by
         if not peer_flags.get(relay, {}).get('nat', False) :
@@ -133,11 +128,6 @@ def handle_hello_message(msg, self_id):
             # 如果可以到达，记录可达性，将sender_id添加到reachable_by
             reachable_by.setdefault(sender_id, set()).add(sender_id)
         
-
-        # if flags.get('nat',False) or peer_config.get(self_id, {}).get('localnetworkid', None) == peer_config.get(sender_id, {}).get('localnetworkid', None):
-        #     # 如果是NAT节点，并且在同一局域网内，记录可达性
-        #     reachable_by.setdefault(sender_id, set()).add(sender_id)
-        #     print(f"Peer {self_id} is NATed, reachable by {sender_id}")
     except KeyError as e:
         print(f"Invalid hello message: missing {e}")
     except json.JSONDecodeError:

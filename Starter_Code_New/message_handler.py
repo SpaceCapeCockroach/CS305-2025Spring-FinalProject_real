@@ -157,10 +157,6 @@ def dispatch_message(msg_raw, self_id, self_ip):
             return
             
         handle_block(msg_raw, self_id)
-        
-        # # 创建INV广播
-        # inv_msg = create_inv(self_id, [msg["block_id"]])
-        # gossip_message(self_id, json.dumps(inv_msg))
 
 
     elif msg_type == "TX":
@@ -180,8 +176,13 @@ def dispatch_message(msg_raw, self_id, self_ip):
             record_offense(sender_id)
             return
             
+        if peer_flags[self_id].get("light", False):
+            print(f"[{self_id}] 轻节点收到交易 {tx_id[:8]}，转发给其他节点")
+            gossip_message(self_id, msg_raw)
+            return
+        
+        # 检查交易是否已存在
         if add_transaction(tx):
-            
             gossip_message(self_id, msg_raw)
 
     elif msg_type == "PING":
@@ -219,6 +220,11 @@ def dispatch_message(msg_raw, self_id, self_ip):
 
         # pass
         print(f"[{self_id}] 收到INV消息 from {sender_id}，包含区块ID: {msg['block_ids']}")
+        if peer_flags[self_id].get("light", False):
+            print(f"[{self_id}] 轻节点收到INV消息，忽略区块请求")
+            return
+        
+        # 全节点处理
         local_inv = get_inventory()
         remote_inv = set(msg["block_ids"])
         missing = remote_inv - set(local_inv)
@@ -250,7 +256,14 @@ def dispatch_message(msg_raw, self_id, self_ip):
         # retries = msg.get("retries", 0)
         
         found = []
+        if peer_flags[self_id].get("light", False):          
+            for peer_id, (ip, port) in known_peers.items():
+                if peer_id == self_id or peer_id == sender_id: continue
+                print(f"[{self_id}] 轻节点收到区块请求 ，转发给其他节点")
+                enqueue_message(peer_id, ip, port, msg_raw)
+            return
         
+
         for bid in requested:
             # 尝试从本地区块链获取区块
             for i in range(4):  # 最多重新尝试3次 
@@ -266,15 +279,6 @@ def dispatch_message(msg_raw, self_id, self_ip):
                         print(f"[{self_id}] 无法获取区块 {bid[:8]}，已放弃...")
                         break
                 # 如果区块不在本地，尝试从其他节点获取
-
-                    if peer_flags[self_id].get("light", False):
-                        
-                        for peer_id, (ip, port) in known_peers.items():
-                            if peer_id == self_id or peer_id == sender_id: continue
-                            # relay_msg["target"] = peer_id
-                            print(f"[{self_id}] 轻节点请求区块 {bid[:8]}，转发给其他节点")
-                            enqueue_message(peer_id, ip, port, msg_raw)
-                        break
                     
                     # 如果是全节点，创建GETBLOCK请求
 
@@ -324,7 +328,11 @@ def dispatch_message(msg_raw, self_id, self_ip):
         with block_lock:
             current_chain = {h["hash"]: h for h in header_store}
             current_blocks = {b["block_id"]: b for b in received_blocks}
-            or_blocks = {b["block_id"]: b for b in orphan_blocks.values()}
+            or_blocks = {
+                block["block_id"]: block  # 键和值表达式
+                for blocks_list in orphan_blocks.values()  # 外层循环（每个值都是block列表）
+                for block in blocks_list  # 内层循环（遍历列表中的每个block）
+            }
 
         for hdr in msg["headers"]:
             prev_hash = hdr["prev_hash"]
@@ -332,15 +340,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
                 print(f"[{self_id}] 收到孤块头 {hdr['hash'][:8]}...")
                 return
                 
-        # 轻节点直接追加
-        is_light_node = peer_config.get(self_id, {}).get("light", False)
-
-        # if not peer_config[self_id].get("light",False):
-        #     header_store.extend(msg["headers"])
-        # else:
-        #     # 全节点检查完整性
-        #     pass
-
+        # 全节点和轻节点处理
         with block_lock:
             # 去重检查
             new_headers = [
@@ -351,7 +351,8 @@ def dispatch_message(msg_raw, self_id, self_ip):
             current_chain = {h["hash"]: h for h in header_store}
             print(f"[{self_id}] 节点添加 {len(new_headers)} 个新区块头")
 
-
+        # 全节点处理
+        is_light_node = peer_config.get(self_id, {}).get("light", False)
         if not is_light_node:
             missing_block_ids = []
             with block_lock:
