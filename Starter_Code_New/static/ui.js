@@ -1,7 +1,7 @@
 // ui.js
 
 // 导入必要的API函数
-import { fetchOutboxData, fetchOrphanBlocksData } from './api.js'; // <-- 确保导入 fetchOrphanBlocksData
+import { fetchOutboxData, fetchOrphanBlocksData, fetchBlacklistData } from './api.js'; // <-- 新增 fetchBlacklistData 导入
 import { renderBlockTree } from './blockTree.js'; // 导入 renderBlockTree，用于孤儿块的样式复用
 
 /**
@@ -33,9 +33,10 @@ export function updateUptime(startTime, uptimeElement) {
  * @param {object} elements - Object containing references to DOM elements.
  * @param {function} fetchAndRenderBlocksTree - Callback function to load/render blocks tree when its page is active.
  * @param {function} initializeOutboxDetailedView - Callback function to initialize the dedicated outbox detailed view.
- * @param {function} initializeOrphanBlocksPage - Callback function to initialize the orphan blocks page. // <-- 新增参数
+ * @param {function} initializeOrphanBlocksPage - Callback function to initialize the orphan blocks page.
+ * @param {function} initializeBlacklistPage - Callback function to initialize the blacklist page. // <-- 新增参数
  */
-export function setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initializeOutboxDetailedView, initializeOrphanBlocksPage) { // <-- 更新函数签名
+export function setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initializeOutboxDetailedView, initializeOrphanBlocksPage, initializeBlacklistPage) { // <-- 更新函数签名
     const pageElements = {
         overview: elements.overviewPage,
         blocks: elements.blocksPage,
@@ -44,7 +45,8 @@ export function setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initia
         performance: elements.performancePage,
         outbox: elements.outboxPage, // 消息队列页面容器 (现在是详细视图)
         orphan_blocks: elements.orphanBlocksPage, // <-- 新增
-        settings: elements.settingsPage
+        settings: elements.settingsPage,
+        blacklist: elements.blacklistPage // <-- 新增
     };
 
     // Hide all pages initially
@@ -95,11 +97,17 @@ export function setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initia
                     } else {
                         console.error("initializeOutboxDetailedView function not passed or found.");
                     }
-                } else if (section === 'orphan-blocks') { // <-- 新增：处理孤儿块页面激活
+                } else if (section === 'orphan-blocks') { // <-- 处理孤儿块页面激活
                     if (initializeOrphanBlocksPage) {
                         initializeOrphanBlocksPage(elements);
                     } else {
                         console.error("initializeOrphanBlocksPage function not passed or found.");
+                    }
+                } else if (section === 'blacklist') { // <-- 新增：处理黑名单页面激活
+                    if (initializeBlacklistPage) {
+                        initializeBlacklistPage(elements);
+                    } else {
+                        console.error("initializeBlacklistPage function not passed or found.");
                     }
                 }
             } else {
@@ -591,6 +599,58 @@ function renderOrphanBlocks(orphanBlocks, container) {
 
         container.appendChild(blockNode);
     });
+}
+
+/**
+ * Updates the UI with the list of blacklisted peers.
+ * @param {string[]} blacklistData An array of blacklisted peer IDs.
+ * @param {object} elements DOM elements object.
+ */
+export function updateBlacklistUI(blacklistData, elements) {
+    const container = elements.blacklistTable; // 假设 tbody 的 ID 是 'blacklist-table'
+    if (!container) {
+        console.error("Blacklist table container not found in DOM.");
+        return;
+    }
+
+    if (!Array.isArray(blacklistData) || blacklistData.length === 0) {
+        container.innerHTML = '<tr><td colspan="1" style="text-align: center;">无节点被列入黑名单</td></tr>';
+        return;
+    }
+
+    let tableHTML = '';
+    blacklistData.forEach(peerId => {
+        tableHTML += `
+            <tr>
+                <td>${peerId}</td>
+            </tr>
+        `;
+    });
+    container.innerHTML = tableHTML;
+}
+
+/**
+ * Initializes the Blacklist page by fetching and rendering data.
+ * This function is specifically called when the "黑名单" tab is clicked.
+ * @param {object} elements DOM elements object.
+ */
+export async function initializeBlacklistPage(elements) {
+    const container = elements.blacklistTable;
+    if (!container) {
+        console.error("Blacklist table container not found in DOM.");
+        return;
+    }
+
+    // 显示加载状态
+    container.innerHTML = '<tr><td colspan="1" style="text-align: center;">加载黑名单数据中...</td></tr>';
+
+    try {
+        const blacklist = await fetchBlacklistData(); // 调用新的 API 函数
+        updateBlacklistUI(blacklist, elements); // 更新 UI 与获取到的数据
+    } catch (error) {
+        console.error('获取黑名单数据失败:', error);
+        container.innerHTML = '<tr><td colspan="1" style="text-align: center; color: var(--danger);">无法加载黑名单数据.</td></tr>';
+    }
 }
 
 /**

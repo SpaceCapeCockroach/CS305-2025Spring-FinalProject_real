@@ -42,7 +42,6 @@
                     <i class="fas fa-envelope"></i>
                     <span>消息队列</span>
                 </div>
-                <!-- 修正：孤儿块导航项移动到 nav-links 内部 -->
                 <div class="nav-item" data-section="orphan-blocks">
                     <i class="fas fa-unlink"></i>
                     <span>孤儿块</span>
@@ -50,6 +49,11 @@
                 <div class="nav-item" data-section="settings">
                     <i class="fas fa-cog"></i>
                     <span>设置</span>
+                </div>
+                <!-- 新增：黑名单导航项 -->
+                <div class="nav-item" data-section="blacklist">
+                    <i class="fas fa-ban"></i> <!-- 使用禁止图标 -->
+                    <span>黑名单</span>
                 </div>
             </div>
             
@@ -191,12 +195,6 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">网络性能</div>
-                        <!-- 移除：延迟按钮 -->
-                        <!-- <div>
-                            <button class="btn active" id="latency-btn" style="margin-right: 10px;">延迟</button>
-                            <button class="btn" id="throughput-btn">吞吐量</button>
-                        </div> -->
-                        <!-- 保持吞吐量按钮或直接移除，如果它是唯一的显示模式 -->
                         <div>
                             <button class="btn active" id="throughput-btn">吞吐量</button>
                         </div>
@@ -299,7 +297,7 @@
                 </div>
             </div>
 
-            <!-- 修正：孤儿块页面移动到正确位置 (main-content 的直接子元素) -->
+            <!-- 孤儿块页面 -->
             <div id="orphan-blocks-page" style="display: none;" data-page="orphan-blocks">
                 <div class="header">
                     <h2>孤儿块</h2>
@@ -340,6 +338,33 @@
             <div id="settings-page" style="display: none;" data-page="settings">
                 <div class="header"><h2>设置</h2></div>
                 <div class="card"><p>配置设置将显示在这里。</p></div>
+            </div>
+
+            <!-- 新增：黑名单页面 -->
+            <div id="blacklist-page" style="display: none;" data-page="blacklist">
+                <div class="header">
+                    <h2>黑名单</h2>
+                    <button class="btn" id="refresh-blacklist">刷新</button>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">被列入黑名单的节点</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>节点ID</th>
+                                </tr>
+                            </thead>
+                            <tbody id="blacklist-table">
+                                <tr>
+                                    <td colspan="1" style="text-align: center;">加载黑名单数据中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

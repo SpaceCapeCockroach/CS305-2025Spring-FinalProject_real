@@ -5,8 +5,8 @@ export let startTime = Date.now();
 export let elements; 
 
 // Import functions from other modules
-import { fetchPeersData, fetchBlocksData, fetchTransactionsData, fetchOutboxData, fetchNetworkPerformanceRawData, fetchOrphanBlocksData } from './api.js'; 
-import { initUI, updateUptime, updatePeersUI, updateBlocksUI, updateTransactionsUI, updateOutboxUI, setupPageNavigationUI, updateNetworkThroughputUI, initializeOutboxDetailedView, initializeOrphanBlocksPage } from './ui.js'; 
+import { fetchPeersData, fetchBlocksData, fetchTransactionsData, fetchOutboxData, fetchNetworkPerformanceRawData, fetchOrphanBlocksData, fetchBlacklistData } from './api.js'; // <-- 新增 fetchBlacklistData
+import { initUI, updateUptime, updatePeersUI, updateBlocksUI, updateTransactionsUI, updateOutboxUI, setupPageNavigationUI, updateNetworkThroughputUI, initializeOutboxDetailedView, initializeOrphanBlocksPage, updateBlacklistUI, initializeBlacklistPage } from './ui.js'; // <-- 新增 updateBlacklistUI, initializeBlacklistPage
 // <-- 关键修改：chart.js 的导入，不再需要 setChartMode
 import { initNetworkChart, updateChartData } from './chart.js'; 
 import { renderBlockTree, extractAndSortBlocksFromTree } from './blockTree.js';
@@ -112,6 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
         performancePage: document.getElementById('performance-page'),
         outboxPage: document.getElementById('outbox-page'), 
         settingsPage: document.getElementById('settings-page'),
+        // 新增黑名单页面元素
+        blacklistPage: document.getElementById('blacklist-page'),
+        refreshBlacklistBtn: document.getElementById('refresh-blacklist'),
+        blacklistTable: document.getElementById('blacklist-table'),
         
         blocksTreeContainer: document.getElementById('blocks-tree-container'),
         searchInput: document.getElementById('search-input'),
@@ -124,7 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initUI(elements, peerId, startTime); 
     // 关键修改：初始化图表时，不再需要 setChartMode
     initNetworkChart(elements.networkChart); 
-    setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initializeOutboxDetailedView, initializeOrphanBlocksPage); 
+    // 关键修改：传递 initializeBlacklistPage 给 setupPageNavigationUI
+    setupPageNavigationUI(elements, fetchAndRenderBlocksTree, initializeOutboxDetailedView, initializeOrphanBlocksPage, initializeBlacklistPage); 
 
     // Set up event listeners for refresh buttons
     elements.refreshBlocksBtn.addEventListener('click', () => fetchDashboardData().then(() => console.log('Blocks refreshed')));
@@ -156,6 +161,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 孤儿块页面的刷新按钮监听器
     if (elements.refreshOrphanBlocksBtn) {
         elements.refreshOrphanBlocksBtn.addEventListener('click', () => initializeOrphanBlocksPage(elements));
+    }
+
+    // 新增：黑名单页面的刷新按钮监听器
+    if (elements.refreshBlacklistBtn) {
+        elements.refreshBlacklistBtn.addEventListener('click', () => initializeBlacklistPage(elements));
     }
 
     // 关键修改：移除 latencyBtn 的事件监听器

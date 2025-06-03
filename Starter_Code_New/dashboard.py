@@ -239,3 +239,12 @@ def drop_status():
         return jsonify(drop_status)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+@app.route('/blacklist')
+def blacklist_status():
+    try:
+        from peer_manager import blacklist
+        if not blacklist:
+            return jsonify({"message": "No blacklisted peers"}), 404
+        return jsonify(list(blacklist))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

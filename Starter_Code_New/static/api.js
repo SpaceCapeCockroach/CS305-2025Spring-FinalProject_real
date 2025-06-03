@@ -88,3 +88,25 @@ export async function fetchNetworkPerformanceRawData() {
     // Return the raw data for chart.js and ui.js to process
     return { latencyData, throughputData: [throughputValue], throughputValue };
 }
+/**
+ * Fetches the list of blacklisted peers from the backend.
+ * @returns {Promise<string[]>} A promise that resolves to an array of blacklisted peer IDs.
+ */
+export async function fetchBlacklistData() {
+    try {
+        const response = await fetch('/blacklist');
+        if (!response.ok) {
+            // 如果是 404，表示没有被列入黑名单的节点，返回空数组而不是抛出错误
+            if (response.status === 404) {
+                console.warn("No blacklisted peers found (404 Not Found).");
+                return [];
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data; 
+    } catch (error) {
+        console.error("Error fetching blacklist data:", error);
+        return [];
+    }
+}
