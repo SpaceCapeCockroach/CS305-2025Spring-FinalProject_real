@@ -219,18 +219,17 @@ export function updateTransactionsUI(transactions, elements) {
         elements.pendingTxs.textContent = "错误";
         return;
     }
-    const pendingTxsCount = transactions.filter(tx => tx.status === 'PENDING' || tx.status === '待处理').length;
+    const pendingTxsCount = transactions.length;
+
     elements.pendingTxs.textContent = pendingTxsCount;
     elements.txsProgress.style.width = `${Math.min(100, pendingTxsCount / (transactions.length || 1) * 100)}%`;
-    
+
     let tableHTML = '';
-    transactions.slice(0, 5).forEach(tx => { 
+    transactions.slice(0, 5).forEach(tx => {
         const txIdShort = tx.id ? tx.id.substr(0, 8) + '...' + tx.id.substr(-8) : '未知ID';
-        const amount = tx.amount != null ? `${tx.amount} ETH` : '未知金额'; 
-        let statusClass = 'status-syncing'; let statusText = tx.status || '未知';
-        if (tx.status === 'CONFIRMED' || tx.status === '已确认') { statusClass = 'status-online'; statusText = '已确认'; }
-        else if (tx.status === 'FAILED' || tx.status === '失败') { statusClass = 'status-offline'; statusText = '失败'; }
-        else if (tx.status === 'PENDING' || tx.status === '待处理') { statusClass = 'status-syncing'; statusText = '待处理';}
+        const amount = tx.amount != null ? `${tx.amount} ETH` : '未知金额';
+        let statusClass = 'status-syncing'; 
+        let statusText = '待处理';
 
         tableHTML += `
         <tr>
@@ -241,7 +240,6 @@ export function updateTransactionsUI(transactions, elements) {
     });
     elements.transactionsTable.innerHTML = tableHTML || '<tr><td colspan="3" style="text-align: center;">无交易数据</td></tr>';
 }
-
 /**
  * Updates the outbox (message queue) table on the OVERVIEW page.
  * This function is specifically for the summary table.
