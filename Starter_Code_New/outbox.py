@@ -23,7 +23,7 @@ PRIORITY_LOW = {"GETBLOCKHEADERS", "GETBLOCKS"}
 
 DROP_PROB = 0.05
 LATENCY_MS = (20, 100)
-SEND_RATE_LIMIT = 500  # messages per second
+SEND_RATE_LIMIT = 50  # messages per second
 
 drop_stats = {
     "BLOCK": 0,
@@ -36,15 +36,15 @@ drop_stats = {
 
 priority_order = {
     "BLOCK": 1,
-    "TX": 1,
-    "PING": 1,
-    "PONG": 1,
-    "HELLO": 2,
-    "BLOCK_HEADERS": 2,
-    "INV": 2,
-    "GET_BLOCK_HEADERS": 1,
-    "GET_BLOCK": 2,
-    "RELAY": 2,
+    "TX": 2,
+    "PING": 2,
+    "PONG": 2,
+    "HELLO": 3,
+    "BLOCK_HEADERS": 1,
+    "INV": 1,
+    "GET_BLOCK_HEADERS": 2,
+    "GET_BLOCK": 3,
+    "RELAY": 3,
 }
 
 # Queues per peer and priority
@@ -195,13 +195,15 @@ def send_from_queue(self_id):
                                 queues[target_id][priority].append(message_info)
                             else:
                                 drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
+                                print(f"队列已满，丢弃消息: {message[:50]}...")
                                 retries[target_id] = 0
                         else:
                             drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
+                            print(f"重试次数超过限制({MAX_RETRIES})，丢弃消息: {message[:50]}...")
                             retries[target_id] = 0
                     else:
                         retries[target_id] = 0
-            time.sleep(1)
+            time.sleep(0.03)
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -287,12 +289,14 @@ def apply_network_conditions(send_func):
         if not rate_limiter.allow():
             msg_type = json.loads(message).get("type", "OTHER")
             drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
+            print(f"当前发送速率过快，丢弃消息: {message[:50]}...")
             return False
 
         # 随机丢包
         if random.random() < DROP_PROB:
             msg_type = json.loads(message).get("type", "OTHER")
             drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
+            print(f"当前网络环境不佳，丢弃消息: {message[:50]}...")
             return False
 
         # 添加延迟

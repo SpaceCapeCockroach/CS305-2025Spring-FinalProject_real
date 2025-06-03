@@ -172,7 +172,7 @@ def handle_block(msg, self_id):
             else:
                 # 存入孤儿区块
                 orphan_blocks.setdefault(block['prev_id'], []).append(block)
-                print(f"孤儿区块 | 前哈希: {block['prev_id'][:8]}...")
+                print(f"接收到由{sender_id}创建的孤儿区块 | 前哈希: {block['prev_id'][:8]}...")
                 
     except (KeyError, json.JSONDecodeError) as e:
         print(f"区块解析失败: {e}")
