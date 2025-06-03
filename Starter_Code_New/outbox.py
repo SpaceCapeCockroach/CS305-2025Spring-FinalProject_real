@@ -37,14 +37,14 @@ drop_stats = {
 priority_order = {
     "BLOCK": 1,
     "TX": 2,
-    "PING": 2,
-    "PONG": 2,
-    "HELLO": 3,
+    "PING": 1,
+    "PONG": 1,
+    "HELLO": 2,
     "BLOCK_HEADERS": 1,
     "INV": 1,
     "GET_BLOCK_HEADERS": 2,
-    "GET_BLOCK": 3,
-    "RELAY": 3,
+    "GET_BLOCK": 2,
+    "RELAY": 2,
 }
 
 # Queues per peer and priority
@@ -53,7 +53,7 @@ retries = defaultdict(int)
 lock = threading.Lock()
 drop_cnt=0
 drop_threshold = 20 # 阈值，超过此值则打印警告
-wait_time = 0.02  # 等待时间，单位为秒
+wait_time = 1  # 等待时间，单位为秒
 # === Sending Rate Limiter ===
 class RateLimiter:
     def __init__(self, rate=SEND_RATE_LIMIT):
@@ -116,7 +116,6 @@ def enqueue_message(target_id, ip, port, message):
         else:
             # 统计丢弃情况
             drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
-            drop_cnt+=1
 
 
 
@@ -188,27 +187,27 @@ def send_from_queue(self_id):
 
                 # 4. 处理重试逻辑（再次短暂加锁）
 
+
                 with lock:
                     if not success:
                         retries[target_id] += 1
                         if retries[target_id] < MAX_RETRIES:
                             # 重新入队（需再次检查队列长度）
-                            time.sleep(RETRY_INTERVAL)  # 等待重试间隔
+                            # time.sleep(RETRY_INTERVAL)  # 等待重试间隔
                             if sum(len(q) for q in queues[target_id].values()) < QUEUE_LIMIT:
-                                queues[target_id][priority].append(message_info)
+                                queues[target_id][priority].appendleft(message_info)
                             else:
-                                drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
-                                drop_cnt+=1
+                                drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1                              
                                 print(f"队列已满，丢弃消息: {message[:50]}...")
                                 retries[target_id] = 0
                         else:
                             drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
-                            drop_cnt+=1
                             print(f"重试次数超过限制({MAX_RETRIES})，丢弃消息: {message[:50]}...")
                             retries[target_id] = 0
                     else:
                         retries[target_id] = 0
-            time.sleep(0.02)
+            global drop_cnt, drop_threshold, wait_time
+            time.sleep(0.02+(drop_cnt/drop_threshold)*wait_time)  # 动态调整等待时间，避免过快发送
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -291,10 +290,11 @@ def apply_network_conditions(send_func):
         # pass
 
         #速率限制检查
+        global drop_cnt, drop_threshold, drop_stats
         if not rate_limiter.allow():
             msg_type = json.loads(message).get("type", "OTHER")
             drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
-            drop_cnt += 1
+            drop_cnt= min(drop_cnt+1, drop_threshold)
             print(f"当前发送速率过快，丢弃消息: {message[:50]}...")
             return False
 
@@ -302,7 +302,7 @@ def apply_network_conditions(send_func):
         if random.random() < DROP_PROB:
             msg_type = json.loads(message).get("type", "OTHER")
             drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
-            drop_cnt += 1
+            drop_cnt= min(drop_cnt+1, drop_threshold)
             print(f"当前网络环境不佳，丢弃消息: {message[:50]}...")
             return False
 
@@ -393,6 +393,7 @@ def gossip_message(self_id, message, fanout=3):
 
     # 加入发送队列
     for peer_id in selected:
+        time.sleep(0.02)  # 添加随机延迟
         enqueue_message(peer_id, known_peers[peer_id][0], known_peers[peer_id][1], message)
 
 
@@ -421,5 +422,5 @@ def dec_drop_cnt():
             with lock:
                 if drop_cnt > 0:
                     drop_cnt -= 1
-            time.sleep(1)
+            time.sleep(0.5)
     threading.Thread(target=loop, daemon=True).start()

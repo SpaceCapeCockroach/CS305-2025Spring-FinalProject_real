@@ -18,7 +18,7 @@ def start_ping_loop(self_id, peer_table):
 
        # TODO: Send a `ping` message to each known peer periodically.
     #    pass
-        PING_INTERVAL = 30  # 每60秒发送一次PING
+        PING_INTERVAL = 20  # 每60秒发送一次PING
         
         while True:
             # 1. 生成PING消息
@@ -32,6 +32,7 @@ def start_ping_loop(self_id, peer_table):
             # 2. 发送给所有已知节点（排除黑名单）
             for peer_id, (ip, port) in peer_table.items():
                 if peer_id not in blacklist and peer_id != self_id:
+                    time.sleep(0.02)  # 添加间隔，避免同时发送
                     enqueue_message(
                         peer_id,ip, port,
                         json.dumps(ping_msg),
@@ -89,7 +90,7 @@ def start_peer_monitor(self_id):
         # TODO: Check the latest time to receive `ping` or `pong` message from each peer in `last_ping_time`.
 
         # TODO: If the latest time is earlier than the limit, mark the peer's status in `peer_status` as `UNREACHABLE` or otherwise `ALIVE`.
-        TIMEOUT = 120  # 2分钟无响应视为离线
+        TIMEOUT = 180  # 3分钟无响应视为离线
         peer_status[self_id] = 'MYSELF'# 自己的状态始终是 ALIVE
         while True:
             current_time = time.time()

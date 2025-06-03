@@ -11,7 +11,7 @@ from block_handler import block_generation, request_block_sync
 from socket_server import start_socket_server
 from dashboard import start_dashboard
 from peer_manager import start_peer_monitor, start_ping_loop
-from outbox import send_from_queue,start_dynamic_capacity_adjustment
+from outbox import send_from_queue,start_dynamic_capacity_adjustment,dec_drop_cnt
 # from link_simulator import 
 from inv_message import broadcast_inventory
 from transaction import transaction_generation
@@ -90,6 +90,7 @@ def main():
     # Sending Message Processing
     print(f"[{self_id}] Starting outbound queue", flush=True)
     send_from_queue(self_id)
+    dec_drop_cnt()
 
     print(f"[{self_id}] Starting dynamic capacity adjustment", flush=True)
     start_dynamic_capacity_adjustment()
