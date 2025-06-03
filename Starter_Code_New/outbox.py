@@ -51,6 +51,7 @@ priority_order = {
 queues = defaultdict(lambda: defaultdict(deque))
 retries = defaultdict(int)
 lock = threading.Lock()
+drop_cnt=0
 
 # === Sending Rate Limiter ===
 class RateLimiter:
@@ -200,7 +201,7 @@ def send_from_queue(self_id):
                             retries[target_id] = 0
                     else:
                         retries[target_id] = 0
-            time.sleep(0.01)
+            time.sleep(1)
 
     threading.Thread(target=worker, daemon=True).start()
 

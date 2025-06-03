@@ -229,3 +229,13 @@ def outbox_status():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+@app.route('/dropstatus')
+def drop_status():
+    try:
+        from outbox import get_drop_stats
+        drop_status = get_drop_stats()
+        if not drop_status:
+            return jsonify({"message": "No drop status available"}), 404
+        return jsonify(drop_status)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
