@@ -282,11 +282,11 @@ def apply_network_conditions(send_func):
         # TODO: Send the message using the function `send_func`.
         # pass
 
-        # 速率限制检查
-        # if not rate_limiter.allow():
-        #     msg_type = json.loads(message).get("type", "OTHER")
-        #     drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
-        #     return False
+        #速率限制检查
+        if not rate_limiter.allow():
+            msg_type = json.loads(message).get("type", "OTHER")
+            drop_stats[msg_type if msg_type in drop_stats else "OTHER"] += 1
+            return False
 
         # 随机丢包
         if random.random() < DROP_PROB:

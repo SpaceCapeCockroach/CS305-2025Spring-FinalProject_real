@@ -25,7 +25,7 @@ peer_inbound_timestamps = defaultdict(list)
 seen_lock = threading.RLock()
 
 # === Inbound Rate Limiting ===
-INBOUND_RATE_LIMIT = 100
+INBOUND_RATE_LIMIT = 10
 INBOUND_TIME_WINDOW = 10  # seconds
 
 def is_inbound_limited(peer_id):

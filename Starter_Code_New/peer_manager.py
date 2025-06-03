@@ -18,7 +18,7 @@ def start_ping_loop(self_id, peer_table):
 
        # TODO: Send a `ping` message to each known peer periodically.
     #    pass
-        PING_INTERVAL = 60  # 每60秒发送一次PING
+        PING_INTERVAL = 30  # 每60秒发送一次PING
         
         while True:
             # 1. 生成PING消息
