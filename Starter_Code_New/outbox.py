@@ -245,6 +245,7 @@ def relay_or_direct_send(self_id, dst_id, message):
                 "payload": message,
                 "message_id": generate_message_id()
             }
+            print(f'{self_id}通过中继节点 {relay_peer[0]}:{relay_peer[1]} 发送消息到 {dst_id} - 消息: {message[:50]}...')
             return send_message(relay_peer[0], relay_peer[1], json.dumps(relay_msg))
         else:
             print(f"No suitable relay peer found for {dst_id}.")
