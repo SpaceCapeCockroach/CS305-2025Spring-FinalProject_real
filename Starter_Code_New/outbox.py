@@ -42,8 +42,8 @@ priority_order = {
     "HELLO": 2,
     "BLOCK_HEADERS": 1,
     "INV": 1,
-    "GET_BLOCK_HEADERS": 2,
-    "GET_BLOCK": 2,
+    "GET_BLOCK_HEADERS": 3,
+    "GET_BLOCK": 3,
     "RELAY": 2,
 }
 
@@ -96,12 +96,22 @@ def enqueue_message(target_id, ip, port, message):
      
     # 速率限制检查
     if is_rate_limited(target_id):
+        print(f"rate_limited速率超限{target_id}, 丢弃消息: {message[:50]}...")
         return
 
     # 解析消息类型
     try:
         msg_dict = json.loads(message)
         msg_type = msg_dict.get("type", "UNKNOWN")
+        msg_type_in=msg_type
+        while msg_type_in =="RELAY":
+            # 如果是RELAY消息，获取实际的payload类型
+            payload = msg_dict.get("payload", {})
+            msg_type_in = payload.get("type", "UNKNOWN")
+        if msg_type_in=="PING" :
+            msg_type = "PING"
+        elif msg_type_in=="PONG":
+            msg_type = "PONG"
     except:
         msg_type = "UNKNOWN"
 

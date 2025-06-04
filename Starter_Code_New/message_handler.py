@@ -259,8 +259,8 @@ def dispatch_message(msg_raw, self_id, self_ip):
         if peer_flags[self_id].get("light", False):          
             for peer_id, (ip, port) in known_peers.items():
                 if peer_id == self_id or peer_id == sender_id: continue
-                print(f"[{self_id}] 轻节点收到区块请求 ，转发给其他节点")
-                enqueue_message(peer_id, ip, port, msg_raw)
+                print(f"[{self_id}] 轻节点收到区块请求 ，忽略")
+                #enqueue_message(peer_id, ip, port, msg_raw)
             return
         
 
