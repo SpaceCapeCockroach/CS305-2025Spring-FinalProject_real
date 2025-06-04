@@ -61,6 +61,7 @@ def start_peer_discovery(self_id, self_info):
             for peer_id in k_peers:
                 peer_ip, peer_port = known_peers[peer_id]
                 if peer_id == self_id: continue  # 不发送给自己
+                time.sleep(0.02)  # 添加间隔，避免同时发送
                 enqueue_message(
                     peer_id, peer_ip ,peer_port,json.dumps(message),
                 )
@@ -94,7 +95,13 @@ def handle_hello_message(msg, self_id):
             
 
         if data['TTL'] > 0:
-            gossip_message(self_id, json.dumps(data))  # 转发hello消息
+            if not peer_flags.get(self_id, {}).get('nat', False) :
+                for peer_id, (ip, port) in known_peers.items():
+                    if peer_id != self_id and peer_id != sender_id:
+                        # 如果不是自己和发送者，转发hello消息
+                        time.sleep(0.02)  # 添加间隔，避免同时发送
+                        enqueue_message(peer_id, ip, port, json.dumps(data))
+                # gossip_message(self_id, json.dumps(data))  # 转发hello消息
             
         
         # 2. 处理新节点
@@ -117,17 +124,26 @@ def handle_hello_message(msg, self_id):
             re_hello = create_hello_message(self_id, peer_config[self_id])
             enqueue_message(sender_id, ip, port, json.dumps(re_hello))  # 回复HELLO消息
         
-        # 添加中间节点到reachable_by
+        
+        
         if not peer_flags.get(relay, {}).get('nat', False) :
+            print(f"[{self_id}]Relay {relay} is not NATed, adding {sender_id} to reachable_by")
             reachable_by.setdefault(sender_id, set()).add(relay)
-            
+        else:
+            print(f"[{self_id}]Relay {relay} is NATed, not adding {sender_id} to reachable_by")
+
         if not is_reachable(self_id, sender_id):
             print(f"receievd HELLO from {sender_id} (unreachable directly: sender_nat={flags.get('nat', True)}, self_nat={peer_flags[self_id]['nat']})")
             print(f"But , Peer {self_id} can reach {sender_id} through {relay}")
         else:
             # 如果可以到达，记录可达性，将sender_id添加到reachable_by
             reachable_by.setdefault(sender_id, set()).add(sender_id)
+            print(f"[{self_id}] Peer {self_id} can reach {sender_id} directly")
         
+        # 添加中间节点到reachable_by
+
+
+
     except KeyError as e:
         print(f"Invalid hello message: missing {e}")
     except json.JSONDecodeError:

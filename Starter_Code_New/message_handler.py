@@ -285,6 +285,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
                     new_getblock = create_getblock(self_id, [bid])
                     for peer_id, (ip, port) in known_peers.items():
                         if peer_id == self_id or peer_id == sender_id: continue
+                        time.sleep(0.02)  # 添加间隔，避免同时发送
                         enqueue_message(peer_id, ip, port, json.dumps(new_getblock))
                     # gossip_message(self_id, json.dumps(new_getblock))
                 time.sleep(request_delay)  # 等待一段时间再重试

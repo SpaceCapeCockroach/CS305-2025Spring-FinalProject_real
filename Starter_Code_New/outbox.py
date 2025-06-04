@@ -8,7 +8,7 @@ from threading import Lock
 from utils import generate_message_id
 
 # === Per-peer Rate Limiting ===
-RATE_LIMIT = 50  # max messages
+RATE_LIMIT = 30  # max messages
 TIME_WINDOW = 10  # per seconds
 peer_send_timestamps = defaultdict(list) # the timestamps of sending messages to each peer
 
@@ -39,11 +39,11 @@ priority_order = {
     "TX": 2,
     "PING": 1,
     "PONG": 1,
-    "HELLO": 2,
+    "HELLO": 1,
     "BLOCK_HEADERS": 1,
     "INV": 1,
-    "GET_BLOCK_HEADERS": 3,
-    "GET_BLOCK": 3,
+    "GET_BLOCK_HEADERS": 2,
+    "GET_BLOCK": 2,
     "RELAY": 2,
 }
 
@@ -263,7 +263,7 @@ def get_relay_peer(self_id, dst_id,sender_id):
   
     # TODO: Select and return the best relaying peer with the smallest transmission latency.
     # pass
-    candidates = reachable_by.get(dst_id, [])
+    candidates = reachable_by.get(dst_id, set())
     best_peer = None
     min_rtt = float('inf')
 
@@ -271,8 +271,8 @@ def get_relay_peer(self_id, dst_id,sender_id):
         if peer == sender_id:
             continue
         with Lock:
-            # current_rtt = rtt_tracker.get(peer, 2000)  # 默认2秒
-            current_rtt = sum(rtt_tracker.get(peer, [2000])) / len(rtt_tracker.get(peer, [2000]))
+            # current_rtt = rtt_tracker.get(peer, 5000)  # 默认2秒
+            current_rtt = sum(rtt_tracker.get(peer, [5000])) / len(rtt_tracker.get(peer, [5000]))
         if current_rtt < min_rtt:
             min_rtt = current_rtt
             best_peer = peer
@@ -394,7 +394,7 @@ def gossip_message(self_id, message, fanout=3):
     candidates = []
     for peer_id in known_peers:
         # 如果是交易，跳过轻节点
-        if (json.loads(message).get("type") == "TX" and peer_config.get("light", False)) or peer_id == self_id:
+        if (json.loads(message).get("type") == "TX" and peer_config.get("light", False)) or peer_id == self_id or peer_id == json.loads(message).get("sender", self_id):
             continue
         candidates.append(peer_id)
 
@@ -425,9 +425,9 @@ def get_drop_stats():
     return drop_stats.copy()
 
 def dec_drop_cnt():
-    global drop_cnt
     def loop():
         # 每秒减少一次丢弃计数
+        global drop_cnt
         while True:
             with lock:
                 if drop_cnt > 0:
