@@ -6,7 +6,7 @@ services:
     ports:
       - "6000:5000"    # Map peer TCP: 6000 -> 5000
       - "8000:7000"    # Map dashboard: 8000 -> 7000
-    command: ["python", "node.py", "--id", "5000", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5000", "--config", "config.json", "--fanout", "1"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.10
@@ -18,7 +18,7 @@ services:
     ports:
       - "6001:5001"
       - "8001:7001"
-    command: ["python", "node.py", "--id", "5001", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5001", "--config", "config.json", "--fanout", "1"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.11
@@ -30,7 +30,7 @@ services:
     ports:
       - "6002:5002"
       - "8002:7002"
-    command: ["python", "node.py", "--id", "5002", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5002", "--config", "config.json", "--fanout", "1"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.12
@@ -42,7 +42,7 @@ services:
     ports:
       - "6003:5003"
       - "8003:7003"
-    command: ["python", "node.py", "--id", "5003", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5003", "--config", "config.json", "--fanout", "1"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.13
@@ -54,7 +54,7 @@ services:
     ports:
       - "6004:5004"    
       - "8004:7004"    
-    command: ["python", "node.py", "--id", "5004", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5004", "--config", "config.json", "--fanout", "1"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.14
@@ -66,7 +66,7 @@ services:
     ports:
       - "6005:5005"    
       - "8005:7005"    
-    command: ["python", "node.py", "--id", "5005", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5005", "--config", "config.json", "--fanout", "1"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.15
@@ -78,7 +78,7 @@ services:
     ports:
       - "6006:5006"    
       - "8006:7006"    
-    command: ["python", "node.py", "--id", "5006", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5006", "--config", "config.json", "--fanout", "1"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.16
@@ -90,7 +90,7 @@ services:
     ports:
       - "6007:5007"    
       - "8007:7007"    
-    command: ["python", "node.py", "--id", "5007", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5007", "--config", "config.json", "--fanout", "1"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.17
@@ -102,7 +102,7 @@ services:
     ports:
       - "6008:5008"    
       - "8008:7008"    
-    command: ["python", "node.py", "--id", "5008", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5008", "--config", "config.json", "--fanout", "1"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.18
@@ -114,7 +114,7 @@ services:
     ports:
       - "6009:5009"    
       - "8009:7009"    
-    command: ["python", "node.py", "--id", "5009", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5009", "--config", "config.json", "--fanout", "1"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.19
@@ -127,7 +127,7 @@ services:
     ports:
       - "6010:5010"    
       - "8010:7010"    
-    command: ["python", "node.py", "--id", "5010", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5010", "--config", "config.json", "--fanout", "1"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.20

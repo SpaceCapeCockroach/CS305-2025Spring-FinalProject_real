@@ -48,7 +48,6 @@ def is_inbound_limited(peer_id):
     return len(timestamps) > INBOUND_RATE_LIMIT
 
 # ===  Redundancy Tracking ===
-
 def get_redundancy_stats():
     # TODO: Return the times of receiving duplicated messages (`message_redundancy`).
     # pass
