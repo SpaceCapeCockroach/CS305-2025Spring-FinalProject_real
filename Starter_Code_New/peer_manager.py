@@ -34,6 +34,7 @@ def start_ping_loop(self_id, peer_table):
             for peer_id, (ip, port) in p_table.items():
                 if peer_id not in blacklist and peer_id != self_id:
                     time.sleep(PING_INTERVAL/len(p_table))  # 添加间隔，避免同时发送
+                    ping_msg["timestamp"]=time.time()
                     print(f"[{self_id}]发送 PING 消息到 {peer_id} ({ip}:{port})")
                     enqueue_message(
                         peer_id,ip, port,
