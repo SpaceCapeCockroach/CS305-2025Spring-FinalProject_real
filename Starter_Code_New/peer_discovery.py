@@ -89,6 +89,7 @@ def handle_hello_message(msg, self_id):
         fanout = data.get('fanout', 0)  # 可选字段
         data['relay'] = self_id  # 添加relay字段
         data['TTL']-=1
+        data['message_id'] = generate_message_id()  # 生成新消息ID
 
 
         if self_id == sender_id:
@@ -97,7 +98,8 @@ def handle_hello_message(msg, self_id):
 
         if data['TTL'] > 0:
             if not peer_flags.get(self_id, {}).get('nat', False) :
-                for peer_id, (ip_p, port_p) in known_peers.items():
+                k_peers=known_peers.copy()
+                for peer_id, (ip_p, port_p) in k_peers.items():
                     # if peer_id != self_id and peer_id != sender_id :
                     if peer_id == relay or peer_id == self_id or peer_id == sender_id or not is_reachable(self_id , peer_id) :
                         continue
@@ -129,19 +131,19 @@ def handle_hello_message(msg, self_id):
         
         
         
-        if not peer_flags.get(relay, {}).get('nat', False) :
+        # if not peer_flags.get(relay, {}).get('nat', False) and peer_config.get(relay, {}).get('localnetworkid', None) == peer_config.get(sender_id, {}).get('localnetworkid', None):
             # and peer_config.get(relay, {}).get('localnetworkid', None) == peer_config.get(sender_id, {}).get('localnetworkid', None)
-            print(f"[{self_id}]Relay {relay} is not NATed, adding {sender_id}<-{relay} to reachable_by")
-            reachable_by.setdefault(sender_id, set()).add(relay)
-        else:
-            print(f"[{self_id}]Relay {relay} is NATed, not adding {sender_id}<-{relay} to reachable_by")
+        print(f"[{self_id}] new relay adding {sender_id}<-{relay} to reachable_by")
+        reachable_by.setdefault(sender_id, set()).add((relay,1/(data['TTL']+1)))  # 添加到reachable_by
+        # else:
+        #     print(f"[{self_id}]Relay {relay} is NATed, not adding {sender_id}<-{relay} to reachable_by")
 
         if not is_reachable(self_id, sender_id):
             print(f"receievd HELLO from {sender_id} (unreachable directly: sender_nat={flags.get('nat', True)}, self_nat={peer_flags[self_id]['nat']})")
             print(f"But , Peer {self_id} can reach {sender_id} through {relay}")
         else:
             # 如果可以到达，记录可达性，将sender_id添加到reachable_by
-            reachable_by.setdefault(sender_id, set()).add(sender_id)
+            reachable_by.setdefault(sender_id, set()).add((sender_id,0))
             print(f"[{self_id}] Peer {self_id} can reach {sender_id} directly")
         
         # 添加中间节点到reachable_by

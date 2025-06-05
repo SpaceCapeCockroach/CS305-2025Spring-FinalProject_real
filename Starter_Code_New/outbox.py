@@ -267,16 +267,28 @@ def get_relay_peer(self_id, dst_id,sender_id):
     candidates = reachable_by.get(dst_id, set())
     best_peer = None
     min_rtt = float('inf')
+    min_cost = float('inf')
 
-    for peer in candidates:
+    for peer ,cost in candidates:
         if peer == sender_id:
             continue
+
         with lock:
-            # current_rtt = rtt_tracker.get(peer, 5000)  # 默认2秒
-            current_rtt = sum(rtt_tracker.get(peer, [5000])) / len(rtt_tracker.get(peer, [5000]))
-        if current_rtt < min_rtt:
-            min_rtt = current_rtt
+            # current_rtt = rtt_tracker.get(peer, 5000)  # 默认10秒
+            if len(rtt_tracker.get(peer,[]))==0:
+                current_rtt = 10000
+            else:
+                current_rtt = sum(rtt_tracker.get(peer, [10000])) / max(len(rtt_tracker.get(peer, [10000])),1)
+
+        if cost<min_cost:
+            cost = min_cost
             best_peer = peer
+            min_rtt = current_rtt
+
+        elif cost == min_cost:
+            if current_rtt < min_rtt:
+                min_rtt = current_rtt
+                best_peer = peer
 
     try:
         return (known_peers[best_peer][0], known_peers[best_peer][1]) if best_peer else None

@@ -139,7 +139,12 @@ def peers():
             localnetwork_id = "public"
         
         # 构建节点信息字典
-        current_rtt = sum(rtt_tracker.get(peer_id, [10000])) / len(rtt_tracker.get(peer_id, [10000])) if peer_status.get(peer_id) == "ALIVE" else 0
+        # current_rtt = sum(rtt_tracker.get(peer_id, [10000])) / len(rtt_tracker.get(peer_id, [10000])) 
+        if len(rtt_tracker.get(peer_id,[]))==0:
+            current_rtt = 10000
+        else:
+            current_rtt = sum(rtt_tracker.get(peer_id, [10000])) / max(len(rtt_tracker.get(peer_id, [10000])),1)
+        current_rtt = current_rtt if peer_status.get(peer_id) == "ALIVE" else 0
         peer_data = {
             "peer_id": peer_id,
             "ip": ip,
@@ -169,7 +174,12 @@ def latency():
     # 展示节点间的延迟
     latency_info = []
     for peer in rtt_tracker:
-        current_rtt = sum(rtt_tracker.get(peer, [10000])) / len(rtt_tracker.get(peer, [10000]))
+        # current_rtt = sum(rtt_tracker.get(peer, [10000])) / len(rtt_tracker.get(peer, [10000]))
+        if len(rtt_tracker.get(peer,[]))==0:
+            current_rtt = 10000
+        else:
+            current_rtt = sum(rtt_tracker.get(peer, [10000])) / max(len(rtt_tracker.get(peer, [10000])),1)
+        current_rtt = current_rtt if peer_status.get(peer) == "ALIVE" else 0
         latency_info.append({"peer_id": peer, "latency_ms": current_rtt})
     return jsonify(latency_info)
 

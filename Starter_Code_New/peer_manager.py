@@ -86,6 +86,12 @@ def handle_pong(msg):
 
 def start_peer_monitor(self_id):
     import threading
+    def clear_loop():
+        with lock:
+            for peer_id, last_ts in list(last_ping_time.items()):
+                if len(rtt_tracker.get(peer_id, [])) > 0:
+                    rtt_tracker[peer_id].pop(0)
+        time.sleep(120)
     def loop():
         # TODO: Check the latest time to receive `ping` or `pong` message from each peer in `last_ping_time`.
 
@@ -100,7 +106,7 @@ def start_peer_monitor(self_id):
                 with lock:
                     if peer_id in blacklist:
                         continue
-                
+                    
                     # 计算离线时间
                     if current_time - last_ts > TIMEOUT:
                         peer_status[peer_id] = 'UNREACHABLE'
@@ -110,6 +116,7 @@ def start_peer_monitor(self_id):
             time.sleep(30)  # 每30秒检查一次
         # pass
     threading.Thread(target=loop, daemon=True).start()
+    threading.Thread(target=clear_loop,daemon=True).start()
 
 def update_peer_heartbeat(peer_id):
     # TODO: Update the `last_ping_time` of a peer when receiving its `ping` or `pong` message.
