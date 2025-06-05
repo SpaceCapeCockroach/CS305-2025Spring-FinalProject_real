@@ -1,6 +1,6 @@
 import json, time, threading
 from utils import generate_message_id
-from outbox import enqueue_message, gossip_message
+from outbox import enqueue_message, gossip_message 
 
 
 known_peers = {}        # { peer_id: (ip, port) }

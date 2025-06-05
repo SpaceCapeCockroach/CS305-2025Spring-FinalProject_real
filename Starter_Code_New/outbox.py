@@ -6,7 +6,7 @@ import random
 from collections import defaultdict, deque
 from threading import Lock
 from utils import generate_message_id
-
+from peer_manager import blacklist
 # === Per-peer Rate Limiting ===
 RATE_LIMIT = 30  # max messages
 TIME_WINDOW = 5  # per seconds
@@ -255,7 +255,7 @@ def relay_or_direct_send(self_id, dst_id, message):
         return send_message(known_peers[dst_id][0], known_peers[dst_id][1], message)
         
 def get_relay_peer(self_id, dst_id,sender_id):
-    from peer_manager import  rtt_tracker ,lock
+    from peer_manager import  rtt_tracker ,lock , blacklist
     from peer_discovery import known_peers, reachable_by 
 
     # TODO: Find the set of relay candidates reachable from the target peer in `reachable_by` of `peer_discovery.py`.
@@ -268,9 +268,10 @@ def get_relay_peer(self_id, dst_id,sender_id):
     best_peer = None
     min_rtt = float('inf')
     min_cost = float('inf')
+    b_list = blacklist.copy()
 
     for peer ,cost in candidates:
-        if peer == sender_id:
+        if peer == sender_id or peer in b_list:
             continue
 
         with lock:
