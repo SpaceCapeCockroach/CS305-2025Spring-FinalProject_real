@@ -196,6 +196,7 @@ def dispatch_message(msg_raw, self_id, self_ip):
         # pass
         update_peer_heartbeat(sender_id)
         pong_msg = create_pong(self_id, msg["timestamp"])
+        print(f"[{self_id}] 收到PING消息 from {sender_id}，回复PONG")
         enqueue_message(sender_id, known_peers[sender_id][0],known_peers[sender_id][1], json.dumps(pong_msg))  # 假设已知节点信息
 
     elif msg_type == "PONG":
