@@ -139,7 +139,7 @@ def peers():
             localnetwork_id = "public"
         
         # 构建节点信息字典
-        current_rtt = sum(rtt_tracker.get(peer_id, [1000])) / len(rtt_tracker.get(peer_id, [1000])) if peer_status.get(peer_id) == "ALIVE" else 0
+        current_rtt = sum(rtt_tracker.get(peer_id, [5000])) / len(rtt_tracker.get(peer_id, [5000])) if peer_status.get(peer_id) == "ALIVE" else 0
         peer_data = {
             "peer_id": peer_id,
             "ip": ip,

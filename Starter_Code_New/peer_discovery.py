@@ -57,6 +57,7 @@ def start_peer_discovery(self_id, self_info):
             
             message = create_hello_message(self_id, self_info)
             # 2. 发送给所有已知节点
+            #TODO: 只发给已知的isreachable的节点
             k_peers = known_peers.copy()  # 避免在迭代时修改字典
             for peer_id in k_peers:
                 peer_ip, peer_port = known_peers[peer_id]
@@ -96,11 +97,11 @@ def handle_hello_message(msg, self_id):
 
         if data['TTL'] > 0:
             if not peer_flags.get(self_id, {}).get('nat', False) :
-                for peer_id, (ip, port) in known_peers.items():
+                for peer_id, (ip_p, port_p) in known_peers.items():
                     if peer_id != self_id and peer_id != sender_id:
                         # 如果不是自己和发送者，转发hello消息
                         time.sleep(0.02)  # 添加间隔，避免同时发送
-                        enqueue_message(peer_id, ip, port, json.dumps(data))
+                        enqueue_message(peer_id, ip_p, port_p, json.dumps(data))
                 # gossip_message(self_id, json.dumps(data))  # 转发hello消息
             
         
@@ -127,10 +128,10 @@ def handle_hello_message(msg, self_id):
         
         
         if not peer_flags.get(relay, {}).get('nat', False) :
-            print(f"[{self_id}]Relay {relay} is not NATed, adding {sender_id} to reachable_by")
+            print(f"[{self_id}]Relay {relay} is not NATed, adding {sender_id}<-{relay} to reachable_by")
             reachable_by.setdefault(sender_id, set()).add(relay)
         else:
-            print(f"[{self_id}]Relay {relay} is NATed, not adding {sender_id} to reachable_by")
+            print(f"[{self_id}]Relay {relay} is NATed, not adding {sender_id}<-{relay} to reachable_by")
 
         if not is_reachable(self_id, sender_id):
             print(f"receievd HELLO from {sender_id} (unreachable directly: sender_nat={flags.get('nat', True)}, self_nat={peer_flags[self_id]['nat']})")
