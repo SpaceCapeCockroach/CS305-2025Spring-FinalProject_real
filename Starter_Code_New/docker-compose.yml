@@ -127,7 +127,7 @@ services:
     ports:
       - "6010:5010"    
       - "8010:7010"    
-    command: ["python", "node.py", "--id", "5010", "--config", "config.json"]
+    command: ["python", "node.py", "--id", "5010", "--config", "config.json","--mode","malicious"]
     networks:
       p2pnet:
         ipv4_address: 172.28.0.20

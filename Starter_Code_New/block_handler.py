@@ -65,10 +65,11 @@ def block_generation(self_id, MALICIOUS_MODE, interval=100):
                 print("未生成候选区块，等待交易...")
                 time.sleep(interval)
                 continue
-            
-
-
-            handle_block(json.dumps(block), self_id)
+            if MALICIOUS_MODE:
+                print(f"恶意节点生成区块 #{len(received_blocks)} | Hash: {block['block_id'][:16]}...")
+                handle_block(json.dumps(block), self_id,True)
+            else:
+                handle_block(json.dumps(block), self_id,False)
 
             # 广播新区块
             inv_msg = create_inv(self_id, [block['block_id']])
@@ -128,7 +129,7 @@ def compute_block_hash(block):
     ).hexdigest()
 
 
-def handle_block(msg, self_id):
+def handle_block(msg, self_id,MALICIOUS_MODE=False):
     # TODO: Check the correctness of `block ID` in the received block. If incorrect, drop the block and record the sender's offence.
 
     # TODO: Check if the block exists in the local blockchain. If yes, drop the block.
@@ -140,13 +141,13 @@ def handle_block(msg, self_id):
     try:
         block = json.loads(msg)
         sender_id = block.get('sender')
-            
-        # 计算实际哈希
-        computed_hash = compute_block_hash(block)
-        if block['block_id'] != computed_hash:
-            print(f"无效区块哈希: 声明 {block['block_id'][:8]} 实际 {computed_hash[:8]}")
-            record_offense(sender_id)
-            return
+        if not MALICIOUS_MODE:
+            # 计算实际哈希
+            computed_hash = compute_block_hash(block)
+            if block['block_id'] != computed_hash:
+                print(f"无效区块哈希: 声明 {block['block_id'][:8]} 实际 {computed_hash[:8]}")
+                record_offense(sender_id)
+                return
         #print(f"进到锁里了吗，真的进得去吗？")
         with block_lock:
             

@@ -97,9 +97,9 @@ def handle_hello_message(msg, self_id):
 
         if data['TTL'] > 0:
             if not peer_flags.get(self_id, {}).get('nat', False) :
-                for peer_id, (ip_p, port_p) in known_peers.items():
+                k_peers = known_peers.copy() 
+                for peer_id, (ip_p, port_p) in k_peers.items():
                     if peer_id != self_id and peer_id != sender_id:
-                        # 如果不是自己和发送者，转发hello消息
                         time.sleep(0.02)  # 添加间隔，避免同时发送
                         enqueue_message(peer_id, ip_p, port_p, json.dumps(data))
                 # gossip_message(self_id, json.dumps(data))  # 转发hello消息

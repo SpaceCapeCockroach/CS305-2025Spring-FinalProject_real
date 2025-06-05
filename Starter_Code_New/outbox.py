@@ -255,7 +255,7 @@ def relay_or_direct_send(self_id, dst_id, message):
         return send_message(known_peers[dst_id][0], known_peers[dst_id][1], message)
         
 def get_relay_peer(self_id, dst_id,sender_id):
-    from peer_manager import  rtt_tracker ,Lock
+    from peer_manager import  rtt_tracker ,lock
     from peer_discovery import known_peers, reachable_by 
 
     # TODO: Find the set of relay candidates reachable from the target peer in `reachable_by` of `peer_discovery.py`.
@@ -271,7 +271,7 @@ def get_relay_peer(self_id, dst_id,sender_id):
     for peer in candidates:
         if peer == sender_id:
             continue
-        with Lock:
+        with lock:
             # current_rtt = rtt_tracker.get(peer, 5000)  # 默认2秒
             current_rtt = sum(rtt_tracker.get(peer, [5000])) / len(rtt_tracker.get(peer, [5000]))
         if current_rtt < min_rtt:

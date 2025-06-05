@@ -8,7 +8,7 @@ from utils import generate_message_id
 peer_status = {} # {peer_id: 'ALIVE', 'UNREACHABLE' or 'UNKNOWN'}
 last_ping_time = {} # {peer_id: timestamp}
 rtt_tracker = {} # {peer_id: transmission latency}
-Lock = threading.Lock()
+lock = threading.Lock()
 # === Check if peers are alive ===
 
 def start_ping_loop(self_id, peer_table):
@@ -69,7 +69,7 @@ def handle_pong(msg):
         # 计算往返时间（RTT）
         rtt = (time.time() - original_ts) * 1000  # 转换为毫秒  
         print(f'收到来自 {peer_id} 的 PONG 响应，原始时间戳: {original_ts}, RTT: {rtt/1000:.2f} s')
-        with Lock:
+        with lock:
             # rtt_tracker[peer_id].append(rtt)
             rtt_tracker.setdefault(peer_id, []).append(rtt)
             print(f'更新RTT from {peer_id}: {rtt_tracker[peer_id]} ms')
@@ -98,7 +98,7 @@ def start_peer_monitor(self_id):
             
             for peer_id, last_ts in list(last_ping_time.items()):
                 # 跳过黑名单节点
-                with Lock:
+                with lock:
                     if peer_id in blacklist:
                         continue
                 
@@ -121,11 +121,9 @@ def update_peer_heartbeat(peer_id):
 
 
 # === Blacklist Logic ===
-
-blacklist = set() # The set of banned peers
-
+    
 peer_offense_counts = {} # The offence times of peers
-
+blacklist = set() # Assuming blacklist is defined elsewhere
 def record_offense(peer_id):
     # TODO: Record the offence times of a peer when malicious behaviors are detected.
 
@@ -133,17 +131,15 @@ def record_offense(peer_id):
 
     # pass
     MAX_OFFENSES = 3
+    peer_offense_counts[peer_id] = peer_offense_counts.get(peer_id, 0) + 1
     
-    peer_offense_counts[peer_id] += 1
     print(f"Peer {peer_id} offense count: {peer_offense_counts[peer_id]}")
     
     if peer_offense_counts[peer_id] >= MAX_OFFENSES:
-        with Lock:
+        with lock: 
             blacklist.add(peer_id)
             print(f"Added {peer_id} to blacklist")
         
-            # 清除相关状态
             peer_status.pop(peer_id, None)
             last_ping_time.pop(peer_id, None)
             rtt_tracker.pop(peer_id, None)
-
