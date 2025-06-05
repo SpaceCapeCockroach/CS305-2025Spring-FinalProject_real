@@ -53,7 +53,7 @@ retries = defaultdict(int)
 lock = threading.Lock()
 drop_cnt=0
 drop_threshold = 20 # 阈值，超过此值则打印警告
-wait_time = 1  # 等待时间，单位为秒
+wait_time = 1.5  # 等待时间，单位为秒
 # === Sending Rate Limiter ===
 class RateLimiter:
     def __init__(self, rate=SEND_RATE_LIMIT):

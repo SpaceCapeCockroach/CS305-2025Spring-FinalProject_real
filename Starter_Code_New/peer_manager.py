@@ -75,7 +75,7 @@ def handle_pong(msg):
             print(f'更新RTT from {peer_id}: {rtt_tracker[peer_id]} ms')
         
             # 更新最后活跃时间
-            update_peer_heartbeat(peer_id)
+            # update_peer_heartbeat(peer_id)
         
             # 维护最近5次RTT样本
             if len(rtt_tracker[peer_id]) > 5:

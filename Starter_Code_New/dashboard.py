@@ -169,7 +169,7 @@ def latency():
     # 展示节点间的延迟
     latency_info = []
     for peer in rtt_tracker:
-        current_rtt = sum(rtt_tracker.get(peer, [1000])) / len(rtt_tracker.get(peer, [1000]))
+        current_rtt = sum(rtt_tracker.get(peer, [10000])) / len(rtt_tracker.get(peer, [10000]))
         latency_info.append({"peer_id": peer, "latency_ms": current_rtt})
     return jsonify(latency_info)
 
