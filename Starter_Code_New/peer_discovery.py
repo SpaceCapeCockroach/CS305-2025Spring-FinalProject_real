@@ -61,7 +61,7 @@ def start_peer_discovery(self_id, self_info):
             k_peers = known_peers.copy()  # 避免在迭代时修改字典
             for peer_id in k_peers:
                 peer_ip, peer_port = known_peers[peer_id]
-                if peer_id == self_id: continue  # 不发送给自己
+                if peer_id == self_id or not is_reachable(self_id,peer_id): continue  # 不发送给自己
                 time.sleep(0.02)  # 添加间隔，避免同时发送
                 enqueue_message(
                     peer_id, peer_ip ,peer_port,json.dumps(message),
@@ -97,11 +97,13 @@ def handle_hello_message(msg, self_id):
 
         if data['TTL'] > 0:
             if not peer_flags.get(self_id, {}).get('nat', False) :
-                k_peers = known_peers.copy() 
-                for peer_id, (ip_p, port_p) in k_peers.items():
-                    if peer_id != self_id and peer_id != sender_id:
-                        time.sleep(0.02)  # 添加间隔，避免同时发送
-                        enqueue_message(peer_id, ip_p, port_p, json.dumps(data))
+                for peer_id, (ip_p, port_p) in known_peers.items():
+                    # if peer_id != self_id and peer_id != sender_id :
+                    if peer_id == relay or peer_id == self_id or peer_id == sender_id or not is_reachable(self_id , peer_id) :
+                        continue
+                    # 如果不是自己和发送者，转发hello消息
+                    time.sleep(0.02)  # 添加间隔，避免同时发送
+                    enqueue_message(peer_id, ip_p, port_p, json.dumps(data))
                 # gossip_message(self_id, json.dumps(data))  # 转发hello消息
             
         
@@ -123,11 +125,12 @@ def handle_hello_message(msg, self_id):
             print(f"[{self_id}]New peer discovered: {sender_id}@{ip}:{port}")
             print(f"[{self_id}]reply HELLO to {sender_id}")
             re_hello = create_hello_message(self_id, peer_config[self_id])
-            enqueue_message(sender_id, ip, port, json.dumps(re_hello))  # 回复HELLO消息
+            enqueue_message(relay, known_peers[relay][0], known_peers[relay][1], json.dumps(re_hello))  # 尝试回复HELLO消息
         
         
         
         if not peer_flags.get(relay, {}).get('nat', False) :
+            # and peer_config.get(relay, {}).get('localnetworkid', None) == peer_config.get(sender_id, {}).get('localnetworkid', None)
             print(f"[{self_id}]Relay {relay} is not NATed, adding {sender_id}<-{relay} to reachable_by")
             reachable_by.setdefault(sender_id, set()).add(relay)
         else:

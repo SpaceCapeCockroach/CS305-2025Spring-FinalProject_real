@@ -9,7 +9,7 @@ from utils import generate_message_id
 
 # === Per-peer Rate Limiting ===
 RATE_LIMIT = 30  # max messages
-TIME_WINDOW = 10  # per seconds
+TIME_WINDOW = 5  # per seconds
 peer_send_timestamps = defaultdict(list) # the timestamps of sending messages to each peer
 
 MAX_RETRIES = 3
@@ -37,8 +37,8 @@ drop_stats = {
 priority_order = {
     "BLOCK": 1,
     "TX": 2,
-    "PING": 1,
-    "PONG": 1,
+    "PING": 0,
+    "PONG": 0,
     "HELLO": 1,
     "BLOCK_HEADERS": 1,
     "INV": 1,
