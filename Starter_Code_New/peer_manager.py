@@ -146,7 +146,7 @@ def record_offense(peer_id):
         with lock: 
             blacklist.add(peer_id)
             print(f"Added {peer_id} to blacklist")
-        
+            
             peer_status.pop(peer_id, None)
             last_ping_time.pop(peer_id, None)
             rtt_tracker.pop(peer_id, None)
