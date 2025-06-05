@@ -40,7 +40,7 @@ def request_block_sync(self_id):
         k_peers = known_peers.copy()  # Avoid modifying the dictionary while iterating
         for peer_id, (ip, port) in k_peers.items():
             if peer_id != self_id:
-
+                time.sleep(0.1)  # Add a small delay to avoid flooding
                 enqueue_message(
                     peer_id,ip, port,
                     json.dumps(get_block_headers_msg),

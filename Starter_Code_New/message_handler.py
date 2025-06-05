@@ -264,32 +264,44 @@ def dispatch_message(msg_raw, self_id, self_ip):
                 #enqueue_message(peer_id, ip, port, msg_raw)
             return
         
-
-        for bid in requested:
+        missing_blocks = list(requested)
             # 尝试从本地区块链获取区块
-            for i in range(4):  # 最多重新尝试3次 
-                request_delay=5**i
+        for i in range(4):  # 最多重新尝试3次 
+            cur_miss_bids=[]
+            request_delay=5**i
+            for bid in missing_blocks:
                 block = get_block_by_id(bid)
                 if block:
                     found.append(block)
                     break
                 else:
-                    # if is_orphan(bid):
-                    #     request_par
+                    cur_miss_bids.append(bid)
+                # if is_orphan(bid):
+                #     request_par
                     if i ==3:
                         print(f"[{self_id}] 无法获取区块 {bid[:8]}，已放弃...")
                         break
-                # 如果区块不在本地，尝试从其他节点获取
-                    
-                    # 如果是全节点，创建GETBLOCK请求
-
-                    new_getblock = create_getblock(self_id, [bid])
-                    for peer_id, (ip, port) in known_peers.items():
-                        if peer_id == self_id or peer_id == sender_id: continue
-                        time.sleep(0.02)  # 添加间隔，避免同时发送
-                        enqueue_message(peer_id, ip, port, json.dumps(new_getblock))
-                    # gossip_message(self_id, json.dumps(new_getblock))
-                time.sleep(request_delay)  # 等待一段时间再重试
+            # 如果区块不在本地，尝试从其他节点获取
+            missing_blocks = cur_miss_bids
+            if not missing_blocks:
+                print(f"[{self_id}] 所有请求区块 {len(found)} 个都找到了")
+                break
+            else:
+                new_getblock = create_getblock(self_id, missing_blocks)
+                for peer_id, (ip, port) in known_peers.items():
+                    if peer_id == self_id or peer_id == sender_id: continue
+                    time.sleep(0.02)
+                    enqueue_message(peer_id, ip, port, json.dumps(new_getblock))
+                    print(f"[{self_id}] 未找到区块 {len(missing_blocks)} 个，已请求其他节点")
+                    time.sleep(request_delay)
+                # 如果是全节点，创建GETBLOCK请求
+                #     new_getblock = create_getblock(self_id, [bid])
+                #     for peer_id, (ip, port) in known_peers.items():
+                #         if peer_id == self_id or peer_id == sender_id: continue
+                #         time.sleep(0.02)  # 添加间隔，避免同时发送
+                #         enqueue_message(peer_id, ip, port, json.dumps(new_getblock))
+                #     # gossip_message(self_id, json.dumps(new_getblock))
+                # time.sleep(request_delay)  # 等待一段时间再重试
         
         # 发送找到的区块
         for block in found:
