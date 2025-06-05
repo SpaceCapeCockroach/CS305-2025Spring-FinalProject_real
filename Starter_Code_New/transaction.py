@@ -46,12 +46,13 @@ class TransactionMessage:
             amount=data["amount"],
             timestamp=data["timestamp"]
         )
+    
 
 redundant_tx_cnt = 0  # Set to store IDs of redundant transactions
 tx_pool = [] # local transaction pool
 tx_ids = set() # the set of IDs of transactions in the local pool
 tx_lock = threading.Lock()  # Lock for thread-safe access to tx_pool and tx_ids
-def transaction_generation(self_id, interval=15):
+def transaction_generation(self_id, MALICIOUS=False,interval=15):
     def loop():
         # TODO: Randomly choose a peer from `known_peers` and generate a transaction to transfer arbitrary amount of money to the peer.
 
@@ -83,12 +84,15 @@ def transaction_generation(self_id, interval=15):
             # 随机生成交易
             receiver = random.choice(candidates)
             amount = random.randint(1, 100)
-            tx = TransactionMessage(self_id, receiver, amount)
-            
+            tx_o = TransactionMessage(self_id, receiver, amount)
+            tx=tx_o.to_dict()
+            if (MALICIOUS):
+                tx["id"]=hashlib.sha256(str(time.time()).encode()).hexdigest()
             # 原子化添加交易
-            if add_transaction(tx):
+
+            if add_transaction(tx_o):
                 print(f"生成交易 → {receiver}: {amount} coins")
-                gossip_message(self_id, json.dumps(tx.to_dict()))
+                gossip_message(self_id, json.dumps(tx))
     threading.Thread(target=loop, daemon=True).start()
 
 def add_transaction(tx):

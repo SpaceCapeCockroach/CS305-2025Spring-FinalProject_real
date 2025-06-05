@@ -81,7 +81,7 @@ def main():
 
     if not self_info.get('light', False):
         print(f"[{self_id}] Starting transaction and block generation", flush=True)
-        transaction_generation(self_id)
+        transaction_generation(self_id,MALICIOUS_MODE)
         block_generation(self_id, MALICIOUS_MODE)
 
     print(f"[{self_id}] Starting broadcast inventory thread", flush=True)
