@@ -18,7 +18,7 @@ def start_ping_loop(self_id, peer_table):
 
        # TODO: Send a `ping` message to each known peer periodically.
     #    pass
-        PING_INTERVAL = 20  # 每60秒发送一次PING
+        PING_INTERVAL = 60  # 每60秒发送一次PING
         
         while True:
             # 1. 生成PING消息
@@ -33,15 +33,13 @@ def start_ping_loop(self_id, peer_table):
             p_table =  peer_table.copy()  # 避免在迭代时修改字典
             for peer_id, (ip, port) in p_table.items():
                 if peer_id not in blacklist and peer_id != self_id:
-                    time.sleep(0.02)  # 添加间隔，避免同时发送
+                    time.sleep(PING_INTERVAL/len(p_table))  # 添加间隔，避免同时发送
                     print(f"[{self_id}]发送 PING 消息到 {peer_id} ({ip}:{port})")
                     enqueue_message(
                         peer_id,ip, port,
                         json.dumps(ping_msg),
                     )
-                   
-            
-            time.sleep(PING_INTERVAL)
+            #time.sleep(PING_INTERVAL)
 
     threading.Thread(target=loop, daemon=True).start()
 

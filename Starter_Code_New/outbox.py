@@ -52,8 +52,8 @@ queues = defaultdict(lambda: defaultdict(deque))
 retries = defaultdict(int)
 lock = threading.Lock()
 drop_cnt=0
-drop_threshold = 20 # 阈值，超过此值则打印警告
-wait_time = 1.5  # 等待时间，单位为秒
+drop_threshold = 10 # 阈值，超过此值则打印警告
+wait_time = 2 # 等待时间，单位为秒
 # === Sending Rate Limiter ===
 class RateLimiter:
     def __init__(self, rate=SEND_RATE_LIMIT):
@@ -370,7 +370,7 @@ def start_dynamic_capacity_adjustment():
         # TODO: Peridically change the peer's sending capacity in `rate_limiter` within the range [2, 10].
         # pass
         while True:
-            new_capacity = random.randint(2, 10)
+            new_capacity = random.randint(20, 100)
             rate_limiter.capacity = new_capacity
             rate_limiter.refill_rate = new_capacity
             time.sleep(30)  # 每30秒调整一次
@@ -433,5 +433,5 @@ def dec_drop_cnt():
             with lock:
                 if drop_cnt > 0:
                     drop_cnt -= 1
-            time.sleep(0.5)
+            time.sleep(0.1)
     threading.Thread(target=loop, daemon=True).start()
