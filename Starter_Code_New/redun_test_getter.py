@@ -10,7 +10,7 @@ BASE_URL = "http://localhost"
 START_DASHBOARD_PORT = 8000  # 第一个 peer 的 dashboard 映射端口
 END_DASHBOARD_PORT = 8010    # 最后一个 peer 的 dashboard 映射端口
 API_ENDPOINT = "/redundancy" # API 路径
-SCRAPE_INTERVAL_SECONDS = 600 # 爬取间隔，10 分钟 = 600 秒
+SCRAPE_INTERVAL_SECONDS = 60 # 爬取间隔，1 分钟 = 60 秒
 OUTPUT_FILE = "redundancy_data.csv" # 数据保存的 CSV 文件名
 REQUEST_TIMEOUT = 5 # 请求超时时间（秒）
 
