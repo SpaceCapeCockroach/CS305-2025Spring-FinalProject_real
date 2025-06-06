@@ -1,0 +1,67 @@
+services:
+  peer5000:
+    build: .
+    container_name: peer5000
+    hostname: peer5000
+    ports:
+      - "6000:5000"    # Map peer TCP: 6000 -> 5000
+      - "8000:7000"    # Map dashboard: 8000 -> 7000
+    command: ["python", "node.py", "--id", "5000", "--config", "config.small.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.10
+
+  peer5001:
+    build: .
+    container_name: peer5001
+    hostname: peer5001
+    ports:
+      - "6001:5001"
+      - "8001:7001"
+    command: ["python", "node.py", "--id", "5001", "--config", "config.small.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.11
+
+  peer5002:
+    build: .
+    container_name: peer5002
+    hostname: peer5002
+    ports:
+      - "6002:5002"
+      - "8002:7002"
+    command: ["python", "node.py", "--id", "5002", "--config", "config.small.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.12
+
+  peer5003:
+    build: .
+    container_name: peer5003
+    hostname: peer5003
+    ports:
+      - "6003:5003"
+      - "8003:7003"
+    command: ["python", "node.py", "--id", "5003", "--config", "config.small.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.13
+
+  peer5004:
+    build: .
+    container_name: peer5004
+    hostname: peer5004
+    ports:
+      - "6004:5004"    
+      - "8004:7004"    
+    command: ["python", "node.py", "--id", "5004", "--config", "config.small.json"]
+    networks:
+      p2pnet:
+        ipv4_address: 172.28.0.14
+
+networks:
+  p2pnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

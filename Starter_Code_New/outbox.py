@@ -383,7 +383,7 @@ def start_dynamic_capacity_adjustment():
         # TODO: Peridically change the peer's sending capacity in `rate_limiter` within the range [2, 10].
         # pass
         while True:
-            new_capacity = random.randint(20, 100)
+            new_capacity = random.randint(100, 200)
             rate_limiter.capacity = new_capacity
             rate_limiter.refill_rate = new_capacity
             time.sleep(30)  # 每30秒调整一次
